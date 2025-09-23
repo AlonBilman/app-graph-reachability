@@ -20,5 +20,9 @@ export interface Vulnerability {
   funcId: string;
   severity: Severity;
   cweId?: string;
-  hasFix?: boolean;
 }
+
+export type DangerousGroup = {
+  paths: Func[][];
+  vulnerability: Vulnerability;
+};

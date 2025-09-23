@@ -4,15 +4,15 @@ import type { Func, Graph, Vulnerability } from "./types";
  * In-memory representation of the graph and vulnerabilities.
  * + utility functions.
  */
-export interface Store {
+
+interface Loaded {
   functions: Map<string, Func>;
   edges: { from: string; to: string }[];
   adjacency: Map<string, Set<string>>;
   entrypointIds: string[];
-  vulnerabilities: Vulnerability[];
 }
 
-export function loadGraph(graph: Graph): Store {
+function loadGraph(graph: Graph): Loaded {
   const functions = new Map<string, Func>();
   const entrypointIds: string[] = [];
   for (const fn of graph.functions) {
@@ -43,17 +43,49 @@ export function loadGraph(graph: Graph): Store {
     edges,
     adjacency,
     entrypointIds,
-    vulnerabilities: [],
   };
 }
+export class Store {
+  private _functions: Map<string, Func>;
+  private _edges: { from: string; to: string }[];
+  private _adjacency: Map<string, Set<string>>;
+  private _entrypointIds: string[];
+  private _vulnerabilities: Vulnerability[];
 
-export function getNeighbors(store: Store, id: string): string[] {
-  return [...(store.adjacency.get(id) ?? new Set<string>())];
-}
+  constructor(graph: Graph) {
+    const { functions, edges, adjacency, entrypointIds } = loadGraph(graph);
+    this._functions = functions;
+    this._edges = edges;
+    this._adjacency = adjacency;
+    this._entrypointIds = entrypointIds;
+    this._vulnerabilities = [];
+  }
 
-export function replaceVulnerabilities(
-  store: Store,
-  vulnerabilities: Vulnerability[],
-) {
-  store.vulnerabilities = vulnerabilities.slice();
+  get functions(): ReadonlyMap<string, Func> {
+    return this._functions;
+  }
+  get edges(): ReadonlyArray<{ from: string; to: string }> {
+    return this._edges;
+  }
+  get adjacency(): ReadonlyMap<string, ReadonlySet<string>> {
+    return this._adjacency;
+  }
+  get entrypointIds(): ReadonlyArray<string> {
+    return this._entrypointIds;
+  }
+  get vulnerabilities(): ReadonlyArray<Vulnerability> {
+    return this._vulnerabilities;
+  }
+
+  getNeighbors(id: string): string[] {
+    return [...(this._adjacency.get(id) ?? new Set<string>())];
+  }
+
+  replaceVulnerabilities(vulnerabilities: Vulnerability[]) {
+    this._vulnerabilities = vulnerabilities.slice();
+  }
+
+  hasFunction(id: string): boolean {
+    return this._functions.has(id);
+  }
 }
