@@ -1,9 +1,16 @@
 import { describe, expect, test } from "vitest";
-import { allEntryToTargetPaths, findDangerousPathsFromEntrypoints } from "../src/reachability";
+import {
+  allEntryToTargetPaths,
+  findDangerousPathsFromEntrypoints,
+} from "../src/reachability";
 import { Store } from "../src/store";
 import type { Graph, Vulnerability, Func } from "../src/types";
 
-const F = (id: string, isEntrypoint = false, name = id): Func => ({ id, name, isEntrypoint });
+const F = (id: string, isEntrypoint = false, name = id): Func => ({
+  id,
+  name,
+  isEntrypoint,
+});
 const makeStore = (graph: Graph) => new Store(graph);
 
 // A -> B -> D -> E
@@ -96,7 +103,7 @@ describe("findDangerousPathsFromEntrypoints", () => {
     const vulnerability: Vulnerability[] = [
       { funcId: "D", severity: "high" },
       { funcId: "Z", severity: "critical" }, // unreachable
-    ] as any; // keep simple typings in the test file
+    ] as any; 
     store.replaceVulnerabilities(vulnerability as Vulnerability[]);
 
     const A = (id: string) => store.functions.get(id)!;
@@ -116,12 +123,16 @@ describe("findDangerousPathsFromEntrypoints", () => {
 
   test("respects maxPathsPerFunc", () => {
     const store = makeStore(baseGraph);
-    const vulnerability: Vulnerability[] = [{ funcId: "D", severity: "medium" }];
+    const vulnerability: Vulnerability[] = [
+      { funcId: "D", severity: "medium" },
+    ];
     store.replaceVulnerabilities(vulnerability);
 
     const A = (id: string) => store.functions.get(id)!;
 
-    const groups = findDangerousPathsFromEntrypoints(store, { maxPathsPerFunc: 1 });
+    const groups = findDangerousPathsFromEntrypoints(store, {
+      maxPathsPerFunc: 1,
+    });
 
     expect(groups).toEqual([
       {
