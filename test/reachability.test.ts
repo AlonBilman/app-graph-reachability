@@ -103,7 +103,7 @@ describe("findDangerousPathsFromEntrypoints", () => {
     const vulnerability: Vulnerability[] = [
       { funcId: "D", severity: "high" },
       { funcId: "Z", severity: "critical" }, // unreachable
-    ] as any; 
+    ] as any;
     store.replaceVulnerabilities(vulnerability as Vulnerability[]);
 
     const A = (id: string) => store.functions.get(id)!;

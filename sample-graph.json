@@ -1,0 +1,28 @@
+{
+  "functions": [
+    {
+      "id": "F_http",
+      "name": "GET /users",
+      "isEntrypoint": true
+    },
+    {
+      "id": "F_svc",
+      "name": "UserService.list",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_lib",
+      "name": "lib/parseQuery",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_isolated",
+      "name": "isolatedFunction",
+      "isEntrypoint": false
+    }
+  ],
+  "edges": [
+    { "from": "F_http", "to": "F_svc" },
+    { "from": "F_svc", "to": "F_lib" }
+  ]
+}

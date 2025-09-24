@@ -28,6 +28,8 @@
   },
   "homepage": "https://github.com/AlonBilman/app-graph-reachability#readme",
   "dependencies": {
+    "@types/dotenv": "^6.1.1",
+    "dotenv": "^17.2.2",
     "express": "^5.1.0"
   },
   "devDependencies": {

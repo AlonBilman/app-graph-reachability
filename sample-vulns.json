@@ -1,0 +1,12 @@
+[
+  {
+    "funcId": "F_lib",
+    "severity": "high",
+    "cweId": "CWE-079"
+  },
+  {
+    "funcId": "F_isolated",
+    "severity": "critical",
+    "cweId": "CWE-078"
+  }
+]
