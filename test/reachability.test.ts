@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import {
   allEntryToTargetPaths,
   findDangerousPathsFromEntrypoints,
-} from "../src/reachability";
+} from "../src/services/reachability";
 import { Store } from "../src/store";
 import type { Graph, Vulnerability, Func } from "../src/types";
 

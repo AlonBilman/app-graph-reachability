@@ -1,4 +1,4 @@
-import { Vulnerability, Severity } from "./types";
+import { Vulnerability, Severity } from "../types";
 
 const baseScore: Record<Severity, number> = {
   critical: 8,

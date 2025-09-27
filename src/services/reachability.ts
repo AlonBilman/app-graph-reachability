@@ -1,5 +1,5 @@
-import { Store } from "./store";
-import { Func, Vulnerability } from "./types";
+import { Store } from "../store";
+import { Func, Vulnerability } from "../types";
 
 // returns all paths from any entrypoint to the target function id with bfs
 export function allEntryToTargetPaths(
