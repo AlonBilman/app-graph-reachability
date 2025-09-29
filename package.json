@@ -5,12 +5,12 @@
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "npm run build && tsx watch src/server.ts",
     "start": "node dist/server.js",
     "prestart": "npm run build",
     "build": "tsc -p tsconfig.json",
     "prepare": "npm run build",
-    "test": "vitest run",
+    "test": "prettier --write && vitest run",
     "format": "prettier --write ."
   },
   "engines": {
