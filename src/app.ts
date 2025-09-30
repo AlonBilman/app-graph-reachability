@@ -7,6 +7,6 @@ export function createApp() {
   app.use(express.json({ limit: "1mb" }));
   app.use("/", api);
   app.use(errorHandler);
-  app.get("/test", (_req, res) => res.json({ ok: true }));
+  app.get("/ping", (_req, res) => res.json({ pong: true }));
   return app;
 }

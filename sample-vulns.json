@@ -1,12 +1,17 @@
 [
   {
+    "id": "V1",
     "funcId": "F_lib",
     "severity": "high",
-    "cweId": "CWE-079"
+    "cweId": "CWE-079",
+    "package_name": "query-parser",
+    "introduced_by_ai": false
   },
   {
+    "id": "V2",
     "funcId": "F_isolated",
     "severity": "critical",
-    "cweId": "CWE-078"
+    "cweId": "CWE-078",
+    "introduced_by_ai": true
   }
 ]

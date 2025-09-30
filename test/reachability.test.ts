@@ -71,8 +71,8 @@ describe("findDangerousPathsFromEntrypoints", () => {
   test("groups by vulnerability and returns Func[][] paths", () => {
     const store = makeStore(baseGraph);
     const vulnerability: Vulnerability[] = [
-      { funcId: "D", severity: "high" },
-      { funcId: "E", severity: "low" },
+      { id: "1", funcId: "D", severity: "high" },
+      { id: "2", funcId: "E", severity: "low" },
     ];
     store.replaceVulnerabilities(vulnerability);
 
@@ -101,8 +101,8 @@ describe("findDangerousPathsFromEntrypoints", () => {
   test("skips unreachable vulnerabilities", () => {
     const store = makeStore(baseGraph);
     const vulnerability: Vulnerability[] = [
-      { funcId: "D", severity: "high" },
-      { funcId: "Z", severity: "critical" }, // unreachable
+      { id: "1", funcId: "D", severity: "high" },
+      { id: "2", funcId: "Z", severity: "critical" }, // unreachable
     ] as any;
     store.replaceVulnerabilities(vulnerability as Vulnerability[]);
 
@@ -124,7 +124,7 @@ describe("findDangerousPathsFromEntrypoints", () => {
   test("respects maxPathsPerFunc", () => {
     const store = makeStore(baseGraph);
     const vulnerability: Vulnerability[] = [
-      { funcId: "D", severity: "medium" },
+      { id: "1", funcId: "D", severity: "medium" },
     ];
     store.replaceVulnerabilities(vulnerability);
 

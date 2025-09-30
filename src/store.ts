@@ -1,4 +1,5 @@
 import type { Func, Graph, Vulnerability } from "./types";
+import type { GraphDTO } from "./schemas/graph.schema";
 
 /**
  * In-memory representation of the graph and vulnerabilities.
@@ -12,9 +13,10 @@ interface Loaded {
   entrypointIds: string[];
 }
 
-function loadGraph(graph: Graph): Loaded {
+function loadGraph(graph: Graph | GraphDTO): Loaded {
   const functions = new Map<string, Func>();
   const entrypointIds: string[] = [];
+
   for (const fn of graph.functions) {
     if (fn.isEntrypoint) entrypointIds.push(fn.id);
     functions.set(fn.id, fn);
@@ -45,6 +47,7 @@ function loadGraph(graph: Graph): Loaded {
     entrypointIds,
   };
 }
+
 export class Store {
   private _functions: Map<string, Func>;
   private _edges: { from: string; to: string }[];
@@ -52,7 +55,7 @@ export class Store {
   private _entrypointIds: string[];
   private _vulnerabilities: Vulnerability[];
 
-  constructor(graph: Graph) {
+  constructor(graph: Graph | GraphDTO) {
     const { functions, edges, adjacency, entrypointIds } = loadGraph(graph);
     this._functions = functions;
     this._edges = edges;

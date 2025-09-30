@@ -12,7 +12,10 @@ export function calculateScore(
   pathLength: number,
 ): number {
   let score = baseScore[vulnerability.severity];
-  const pathPenalty = Math.log2(pathLength);
-  score -= pathPenalty;
-  return Math.max(0, score); // min should be 0.
+
+  if (vulnerability.reachable) score += 3;
+  if (vulnerability.introduced_by_ai) score += 2;
+  if (vulnerability.package_name) score += 1;
+
+  return Math.max(0, score);
 }

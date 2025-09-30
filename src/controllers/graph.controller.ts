@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
 import { Store } from "../store";
-import type { Graph } from "../types";
+import type { GraphDTO } from "../schemas/graph.schema";
 
 let store: Store | null = null;
 
@@ -16,14 +16,15 @@ export const requireStore = () => {
 
 export const postGraph: RequestHandler = (req, res, next) => {
   try {
-    store = new Store(req.body as Graph);
+    const graphData: GraphDTO = req.body;
+    store = new Store(graphData);
     res.json({
       ok: true,
       functions: store.functions.size,
       edges: store.edges.length,
       entrypoints: store.entrypointIds.length,
     });
-  } catch (ex) {
-    next(ex);
+  } catch (e) {
+    next(e);
   }
 };
