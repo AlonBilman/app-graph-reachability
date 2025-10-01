@@ -1,12 +1,8 @@
-import express from "express";
+import dotenv from "dotenv";
+import { createApp } from "./app";
 
-const app = express();
-const port = process.env.PORT || 3000;
-
-app.get("/", (_req, res) => {
-  res.send("OK");
-});
-
-app.listen(port, () => {
-  console.log(`Server listening on http://localhost:${port}`);
+dotenv.config();
+const PORT = Number(process.env.PORT);
+createApp().listen(PORT, () => {
+  console.log(`API listening on http://localhost:${PORT}`);
 });
