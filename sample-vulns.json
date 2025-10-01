@@ -1,17 +1,79 @@
 [
   {
-    "id": "V1",
-    "funcId": "F_lib",
-    "severity": "high",
-    "cweId": "CWE-079",
-    "package_name": "query-parser",
+    "id": "CVE-2024-001",
+    "funcId": "F_sql_builder",
+    "severity": "critical",
+    "cweId": "CWE-089",
+    "package_name": "sql-query-builder",
     "introduced_by_ai": false
   },
   {
-    "id": "V2",
-    "funcId": "F_isolated",
+    "id": "CVE-2024-002",
+    "funcId": "F_jwt_verify",
+    "severity": "high",
+    "cweId": "CWE-347",
+    "package_name": "jsonwebtoken",
+    "introduced_by_ai": false
+  },
+  {
+    "id": "CVE-2024-003",
+    "funcId": "F_xml_parser",
+    "severity": "high",
+    "cweId": "CWE-611",
+    "package_name": "xml2js",
+    "introduced_by_ai": false
+  },
+  {
+    "id": "CVE-2024-004",
+    "funcId": "F_json_parser",
+    "severity": "medium",
+    "cweId": "CWE-079",
+    "introduced_by_ai": true
+  },
+  {
+    "id": "CVE-2024-005",
+    "funcId": "F_image_resize",
+    "severity": "medium",
+    "cweId": "CWE-434",
+    "package_name": "sharp",
+    "introduced_by_ai": false
+  },
+  {
+    "id": "CVE-2024-006",
+    "funcId": "F_deprecated_utils",
     "severity": "critical",
     "cweId": "CWE-078",
+    "introduced_by_ai": false
+  },
+  {
+    "id": "CVE-2024-007",
+    "funcId": "F_unused_feature",
+    "severity": "high",
+    "cweId": "CWE-502",
+    "introduced_by_ai": true
+  },
+  {
+    "id": "CVE-2024-008",
+    "funcId": "F_third_party_lib",
+    "severity": "low",
+    "cweId": "CWE-125",
+    "package_name": "vendor-utils",
+    "introduced_by_ai": false
+  },
+  {
+    "id": "CVE-2024-009",
+    "funcId": "F_password_hash",
+    "severity": "medium",
+    "cweId": "CWE-916",
+    "package_name": "bcrypt",
+    "introduced_by_ai": false
+  },
+  {
+    "id": "CVE-2024-010",
+    "funcId": "F_cache_get",
+    "severity": "low",
+    "cweId": "CWE-20",
+    "package_name": "redis",
     "introduced_by_ai": true
   }
 ]

@@ -1,12 +1,200 @@
 {
   "functions": [
-    { "id": "F_http", "name": "GET /users", "isEntrypoint": true },
-    { "id": "F_svc", "name": "UserService.list", "isEntrypoint": false },
-    { "id": "F_lib", "name": "lib/parseQuery", "isEntrypoint": false },
-    { "id": "F_isolated", "name": "utils.oldFunction", "isEntrypoint": false }
+    {
+      "id": "F_auth_login",
+      "name": "POST /auth/login",
+      "isEntrypoint": true
+    },
+    {
+      "id": "F_auth_register",
+      "name": "POST /auth/register",
+      "isEntrypoint": true
+    },
+    {
+      "id": "F_users_list",
+      "name": "GET /users",
+      "isEntrypoint": true
+    },
+    {
+      "id": "F_users_profile",
+      "name": "GET /users/:id",
+      "isEntrypoint": true
+    },
+    {
+      "id": "F_admin_dashboard",
+      "name": "GET /admin/dashboard",
+      "isEntrypoint": true
+    },
+    {
+      "id": "F_webhook_github",
+      "name": "POST /webhooks/github",
+      "isEntrypoint": true
+    },
+    {
+      "id": "F_scheduled_cleanup",
+      "name": "ScheduledJob.cleanupOldSessions",
+      "isEntrypoint": true
+    },
+    {
+      "id": "F_auth_service",
+      "name": "AuthService.authenticate",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_user_service",
+      "name": "UserService.findById",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_user_service_list",
+      "name": "UserService.listUsers",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_jwt_verify",
+      "name": "JwtUtil.verifyToken",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_jwt_sign",
+      "name": "JwtUtil.signToken",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_password_hash",
+      "name": "CryptoUtil.hashPassword",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_password_verify",
+      "name": "CryptoUtil.verifyPassword",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_db_user_find",
+      "name": "UserRepository.findById",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_db_user_create",
+      "name": "UserRepository.create",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_db_user_list",
+      "name": "UserRepository.findAll",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_db_session_cleanup",
+      "name": "SessionRepository.deleteExpired",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_query_parser",
+      "name": "QueryParser.parseFilters",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_sql_builder",
+      "name": "SqlBuilder.buildQuery",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_cache_get",
+      "name": "RedisCache.get",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_cache_set",
+      "name": "RedisCache.set",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_logger",
+      "name": "Logger.info",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_email_send",
+      "name": "EmailService.sendWelcome",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_webhook_parser",
+      "name": "WebhookParser.parseGithub",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_json_parser",
+      "name": "JsonUtil.deepParse",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_xml_parser",
+      "name": "XmlUtil.parseDocument",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_file_upload",
+      "name": "FileService.uploadAvatar",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_image_resize",
+      "name": "ImageProcessor.resize",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_deprecated_utils",
+      "name": "LegacyUtils.oldHashFunction",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_unused_feature",
+      "name": "BetaFeature.experimentalSort",
+      "isEntrypoint": false
+    },
+    {
+      "id": "F_third_party_lib",
+      "name": "VendorLib.processData",
+      "isEntrypoint": false
+    }
   ],
   "edges": [
-    { "from": "F_http", "to": "F_svc" },
-    { "from": "F_svc", "to": "F_lib" }
+    { "from": "F_auth_login", "to": "F_auth_service" },
+    { "from": "F_auth_login", "to": "F_logger" },
+    { "from": "F_auth_register", "to": "F_user_service" },
+    { "from": "F_auth_register", "to": "F_password_hash" },
+    { "from": "F_auth_register", "to": "F_email_send" },
+    { "from": "F_auth_register", "to": "F_logger" },
+    { "from": "F_users_list", "to": "F_user_service_list" },
+    { "from": "F_users_list", "to": "F_jwt_verify" },
+    { "from": "F_users_list", "to": "F_query_parser" },
+    { "from": "F_users_profile", "to": "F_user_service" },
+    { "from": "F_users_profile", "to": "F_jwt_verify" },
+    { "from": "F_users_profile", "to": "F_cache_get" },
+    { "from": "F_admin_dashboard", "to": "F_jwt_verify" },
+    { "from": "F_admin_dashboard", "to": "F_user_service_list" },
+    { "from": "F_webhook_github", "to": "F_webhook_parser" },
+    { "from": "F_webhook_github", "to": "F_json_parser" },
+    { "from": "F_webhook_github", "to": "F_logger" },
+    { "from": "F_scheduled_cleanup", "to": "F_db_session_cleanup" },
+    { "from": "F_scheduled_cleanup", "to": "F_logger" },
+    { "from": "F_auth_service", "to": "F_db_user_find" },
+    { "from": "F_auth_service", "to": "F_password_verify" },
+    { "from": "F_auth_service", "to": "F_jwt_sign" },
+    { "from": "F_user_service", "to": "F_db_user_find" },
+    { "from": "F_user_service", "to": "F_cache_get" },
+    { "from": "F_user_service", "to": "F_cache_set" },
+    { "from": "F_user_service_list", "to": "F_db_user_list" },
+    { "from": "F_user_service_list", "to": "F_cache_get" },
+    { "from": "F_query_parser", "to": "F_sql_builder" },
+    { "from": "F_db_user_list", "to": "F_sql_builder" },
+    { "from": "F_db_user_create", "to": "F_sql_builder" },
+    { "from": "F_webhook_parser", "to": "F_json_parser" },
+    { "from": "F_json_parser", "to": "F_xml_parser" },
+    { "from": "F_email_send", "to": "F_file_upload" },
+    { "from": "F_file_upload", "to": "F_image_resize" }
   ]
 }

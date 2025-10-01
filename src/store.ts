@@ -91,4 +91,10 @@ export class Store {
   hasFunction(id: string): boolean {
     return this._functions.has(id);
   }
+
+  getFunctionOrThrow(id: string): Func {
+    const fn = this._functions.get(id);
+    if (!fn) throw new Error(`Function not found: ${id}`);
+    return fn;
+  }
 }

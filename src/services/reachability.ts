@@ -1,5 +1,6 @@
 import { Store } from "../store";
-import { Func, Vulnerability } from "../types";
+import { Func } from "../types";
+import { DangerousGroup } from "../types";
 
 // returns all paths from any entrypoint to the target function id with bfs
 export function allEntryToTargetPaths(
@@ -31,17 +32,6 @@ export function allEntryToTargetPaths(
   return results;
 }
 
-const getFuncOrThrow = (store: Store, id: string): Func => {
-  const f = store.functions.get(id);
-  if (!f) throw new Error(`Func id not found: ${id}`);
-  return f;
-};
-
-type DangerousGroup = {
-  paths: Func[][];
-  vulnerability: Vulnerability;
-};
-
 export function findDangerousPathsFromEntrypoints(
   store: Store,
   opts?: { maxPathsPerFunc?: number },
@@ -50,6 +40,7 @@ export function findDangerousPathsFromEntrypoints(
 
   //cache bfs results once per target
   const pathCache = new Map<string, string[][]>();
+
   const getIdPaths = (funcId: string): string[][] => {
     if (!pathCache.has(funcId)) {
       const paths = allEntryToTargetPaths(store, funcId);
@@ -66,7 +57,7 @@ export function findDangerousPathsFromEntrypoints(
     if (idPaths.length === 0) continue; //skip unreachable
 
     const funcPaths: Func[][] = idPaths.map((ids) =>
-      ids.map((id) => getFuncOrThrow(store, id)),
+      ids.map((id) => store.getFunctionOrThrow(id)),
     );
     groups.push({ paths: funcPaths, vulnerability: vuln });
   }
