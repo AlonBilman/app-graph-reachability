@@ -58,6 +58,7 @@ export interface RisksListResponse {
 }
 
 export interface TraceResponse {
+  vulnerability_id?: string;
   function_id: string;
   reachable: boolean;
   shortest_path?: string[];
@@ -67,17 +68,8 @@ export interface TraceResponse {
   shortest_path_length?: number;
   total_paths?: number;
   error?: string;
-}
-
-export interface VulnerabilityTraceResponse {
-  vulnerability_id: string;
-  function_id: string;
-  reachable: boolean;
-  shortest_path?: string[];
-  path_length?: number;
-  severity: Severity;
-  score: number;
-  error?: string;
+  severity?: Severity;
+  score?: number;
 }
 
 export interface GraphLoadResponse {
@@ -90,6 +82,4 @@ export interface GraphLoadResponse {
 export interface VulnerabilityLoadResponse {
   ok: boolean;
   vulnerabilities_loaded: number;
-  reachable_count: number;
-  unreachable_count: number;
 }

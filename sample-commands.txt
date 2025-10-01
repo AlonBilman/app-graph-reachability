@@ -1,0 +1,8 @@
+
+npm run dev
+
+curl -X POST http://localhost:3000/graph -d @sample-graph.json -H "Content-Type: application/json"
+curl -X POST http://localhost:3000/vulns -d @sample-vulns.json -H "Content-Type: application/json"
+curl http://localhost:3000/risks
+curl http://localhost:3000/functions/F_sql_builder/trace
+curl http://localhost:3000/vulns/CVE-2024-001/trace

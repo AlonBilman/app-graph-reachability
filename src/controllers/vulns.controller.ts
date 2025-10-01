@@ -1,6 +1,7 @@
 import type { RequestHandler } from "express";
 import { requireStore } from "./graph.controller";
 import type { VulnDTO } from "../schemas/vulns.schema";
+import type { VulnerabilityLoadResponse } from "../types.ts";
 
 export const postVulns: RequestHandler = (req, res, next) => {
   try {
@@ -18,10 +19,12 @@ export const postVulns: RequestHandler = (req, res, next) => {
 
     store.replaceVulnerabilities(vulnerabilities);
 
-    res.json({
+    const response: VulnerabilityLoadResponse = {
       ok: true,
       vulnerabilities_loaded: vulnerabilities.length,
-    });
+    };
+
+    res.json(response);
   } catch (e) {
     next(e);
   }

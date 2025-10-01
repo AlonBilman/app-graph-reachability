@@ -1,6 +1,7 @@
 import type { RequestHandler } from "express";
 import { Store } from "../store";
 import type { GraphDTO } from "../schemas/graph.schema";
+import type { GraphLoadResponse } from "../types.ts";
 
 let store: Store | null = null;
 
@@ -18,12 +19,15 @@ export const postGraph: RequestHandler = (req, res, next) => {
   try {
     const graphData: GraphDTO = req.body;
     store = new Store(graphData);
-    res.json({
+
+    const response: GraphLoadResponse = {
       ok: true,
       functions: store.functions.size,
       edges: store.edges.length,
-      entrypoints: store.entrypointIds.length,
-    });
+      entry_points: store.entrypointIds.length,
+    };
+
+    res.json(response);
   } catch (e) {
     next(e);
   }

@@ -12,7 +12,7 @@ export const getRisks: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
     const minSeverity = req.query.min_severity as Severity | undefined;
-    const limit = parseInt(req.query.limit as string) || 100;
+    const limit = parseInt(req.query.limit as string) || 50;
     const reachableOnly = req.query.reachable_only !== "false";
 
     const risks: RiskResponse[] = store.vulnerabilities

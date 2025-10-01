@@ -1,5 +1,11 @@
-// import { Router } from "express";
-// import { getTrace } from "../controllers/trace.controller";
-// export const traceRouter = Router();
+import { Router } from "express";
+import {
+  getFunctionTrace,
+  getVulnerabilityTrace,
+} from "../controllers/trace.controller";
 
-// traceRouter.get("/:id/trace", getTrace);
+export const traceRouter = Router();
+traceRouter.get("/:id/trace", getFunctionTrace);
+
+export const vulnTraceRouter = Router();
+vulnTraceRouter.get("/:id/trace", getVulnerabilityTrace);
