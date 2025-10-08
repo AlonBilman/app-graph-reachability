@@ -1,6 +1,6 @@
 import { Store } from "../store";
-import { Func } from "../types";
-import { DangerousGroup } from "../types";
+import { Func, DangerousGroup } from "../types";
+import { bfsAllPaths } from "./graphUtils";
 
 // returns all paths from any entrypoint to the target function id with bfs
 export function allEntryToTargetPaths(
@@ -8,27 +8,10 @@ export function allEntryToTargetPaths(
   target: string,
 ): string[][] {
   const results: string[][] = [];
-
   for (const entry of store.entrypointIds) {
-    const queue: string[][] = [[entry]];
-
-    while (queue.length > 0) {
-      const path = queue.shift()!;
-      const last = path[path.length - 1];
-
-      if (last === target) {
-        results.push(path);
-        continue;
-      }
-
-      for (const neighbor of store.getNeighbors(last)) {
-        if (!path.includes(neighbor)) {
-          queue.push([...path, neighbor]);
-        }
-      }
-    }
+    const paths = bfsAllPaths(store, entry, target);
+    results.push(...paths);
   }
-
   return results;
 }
 
