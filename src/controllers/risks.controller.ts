@@ -6,17 +6,18 @@ import {
   getScoreBreakdown,
   hierarchyLevels,
 } from "../services/scoring";
-import type { Severity, RisksListResponse, RiskResponse } from "../types";
+import type { RisksListResponse, RiskResponse, Severity } from "../types";
 
 export const getRisks: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
-    const minSeverity = req.query.min_severity as Severity | undefined;
-    const limit = parseInt(req.query.limit as string) || 50;
-    const reachableOnly = req.query.reachable_only !== "false";
+    const { min_severity, limit, reachable_only } = req.query as {
+      min_severity?: Severity;
+      limit?: number;
+      reachable_only?: boolean;
+    };
 
     const risks: RiskResponse[] = store.vulnerabilities
-      //Im not sure if its the right approach, but Id like to skip bad vulns instead of crashing.
       .filter((vuln) => {
         const exists = store.hasFunction(vuln.funcId);
         if (!exists) {
@@ -50,12 +51,11 @@ export const getRisks: RequestHandler = (req, res, next) => {
           },
         };
       })
-      //filtering and sorting according to the query
-      .filter((risk) => !reachableOnly || risk.reachable)
+      .filter((risk) => !reachable_only || risk.reachable)
       .filter(
         (risk) =>
-          !minSeverity ||
-          hierarchyLevels[risk.severity] >= hierarchyLevels[minSeverity],
+          !min_severity ||
+          hierarchyLevels[risk.severity] >= hierarchyLevels[min_severity],
       )
       .sort((a, b) => b.score - a.score)
       .slice(0, limit);

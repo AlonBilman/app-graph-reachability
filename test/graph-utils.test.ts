@@ -7,12 +7,8 @@ import {
   bfsReachable,
   invalidateReverseAdj,
 } from "../src/services/graph-utils";
+import { F } from "./helpers";
 
-const F = (id: string, isEntrypoint = false, name = id) => ({
-  id,
-  name,
-  isEntrypoint,
-});
 const makeStore = (graph: any) => new Store(graph);
 
 const baseGraph = {
@@ -70,23 +66,43 @@ describe("graphUtils", () => {
   });
 
   describe("findConnectedComponents", () => {
-    test("finds all undirected components", () => {
-      const components = findConnectedComponents(store);
+    test.each([
+      [
+        "finds all undirected components in baseGraph",
+        baseGraph,
+        [["A", "B", "C", "D", "E", "X"], ["Y"]],
+      ],
+      [
+        "single component graph",
+        { functions: [F("A", true)], edges: [] },
+        [["A"]],
+      ],
+      [
+        "two disconnected nodes",
+        { functions: [F("A", true), F("B")], edges: [] },
+        [["A"], ["B"]],
+      ],
+    ])("%s", (_desc, graph, expected) => {
+      const s = makeStore(graph);
+      const components = findConnectedComponents(s);
       const sorted = components
         .map((c) => c.sort())
         .sort((a, b) => b.length - a.length);
-      expect(sorted.length).toBe(2);
-      expect(sorted[0]).toEqual(["A", "B", "C", "D", "E", "X"]);
-      expect(sorted[1]).toEqual(["Y"]);
+      const expectedSorted = expected
+        .map((c) => c.sort())
+        .sort((a, b) => b.length - a.length);
+      expect(sorted).toEqual(expectedSorted);
     });
   });
 
   describe("getUndirectedNeighbors", () => {
-    test("returns all neighbors regardless of direction", () => {
-      expect(getUndirectedNeighbors(store, "D").sort()).toEqual(
-        ["B", "C", "E", "X"].sort(),
+    test.each([
+      ["returns all neighbors of D", "D", ["B", "C", "E", "X"]],
+      ["returns empty for Y", "Y", []],
+    ])("%s", (_desc, node, expected) => {
+      expect(getUndirectedNeighbors(store, node).sort()).toEqual(
+        expected.sort(),
       );
-      expect(getUndirectedNeighbors(store, "Y")).toEqual([]);
     });
   });
 

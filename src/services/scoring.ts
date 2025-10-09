@@ -1,6 +1,6 @@
 import { Vulnerability, Severity, ScoreBreakdown } from "../types";
 
-const baseScore: Record<Severity, number> = {
+export const baseScore: Record<Severity, number> = {
   critical: 8,
   high: 6,
   medium: 3,
@@ -14,17 +14,24 @@ export const hierarchyLevels: Record<Severity, number> = {
   critical: 4,
 };
 
+export const scoringFactors = {
+  reachability_bonus: 3,
+  package_risk: 1,
+  ai_risk: 2,
+};
+
 export function getScoreBreakdown(
   vulnerability: Vulnerability,
+  factors = scoringFactors,
 ): ScoreBreakdown {
-  const scoreBreakdown: ScoreBreakdown = {
+  return {
     base_severity: baseScore[vulnerability.severity],
-    reachability_bonus: vulnerability.reachable ? 3 : 0,
-    package_risk: vulnerability.package_name ? 1 : 0,
-    ai_risk: vulnerability.introduced_by_ai ? 2 : 0,
+    reachability_bonus: vulnerability.reachable
+      ? factors.reachability_bonus
+      : 0,
+    package_risk: vulnerability.package_name ? factors.package_risk : 0,
+    ai_risk: vulnerability.introduced_by_ai ? factors.ai_risk : 0,
   };
-
-  return scoreBreakdown;
 }
 
 export function calculateTotalScore(breakdown: ScoreBreakdown): number {
@@ -34,4 +41,12 @@ export function calculateTotalScore(breakdown: ScoreBreakdown): number {
     breakdown.package_risk +
     breakdown.ai_risk
   );
+}
+
+export function getExploitDifficulty(
+  pathLength: number,
+): "low" | "medium" | "high" {
+  if (pathLength <= 3) return "low";
+  if (pathLength <= 6) return "medium";
+  return "high";
 }

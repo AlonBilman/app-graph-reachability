@@ -1,24 +1,13 @@
 import { describe, expect, test, beforeEach } from "vitest";
 import { Store } from "../src/store";
-import { findConnectedComponents } from "../src/services/analytics";
-import type { Graph, Vulnerability, Func } from "../src/types";
+import {
+  findConnectedComponents,
+  findCriticalAttackPaths,
+} from "../src/services/analytics";
+import type { Graph, Vulnerability } from "../src/types";
+import { F, V } from "./helpers";
 
-const F = (id: string, isEntrypoint = false, name = id): Func => ({
-  id,
-  name,
-  isEntrypoint,
-});
 const makeStore = (graph: Graph) => new Store(graph);
-const V = (
-  id: string,
-  funcId: string,
-  severity: Vulnerability["severity"],
-): Vulnerability => ({
-  id,
-  funcId,
-  severity,
-  reachable: false,
-});
 
 // A -> B -> C -> D -> E  (main component with entrypoint A)
 // "isolated" is a singleton component
@@ -261,6 +250,134 @@ describe("analytics", () => {
       store.replaceVulnerabilities([]);
       const result = findConnectedComponents(store);
       expect(result.isolated_components[0].risk_level).toBe("low");
+    });
+  });
+
+  describe("findCriticalAttackPaths", () => {
+    test.each([
+      [
+        "returns empty if no high/critical vulnerabilities",
+        [V("V1", "B", "medium"), V("V2", "C", "low")],
+        [],
+        0,
+      ],
+      [
+        "finds attack paths for high/critical vulnerabilities only",
+        [
+          V("V1", "C", "critical"),
+          V("V2", "B", "high"),
+          V("V3", "A", "medium"),
+        ],
+        ["V1", "V2"],
+        2,
+      ],
+    ])("%s", (_desc, vulns, expectedVulnIds, expectedCount) => {
+      const graph: Graph = {
+        functions: [F("A", true), F("B"), F("C")],
+        edges: [
+          { from: "A", to: "B" },
+          { from: "B", to: "C" },
+        ],
+      };
+      const s = new Store(graph);
+      s.replaceVulnerabilities(vulns);
+      const { critical_paths } = findCriticalAttackPaths(s, 5, "high");
+      const vulnIds = critical_paths.map((p) => p.vulnerability_id);
+      expectedVulnIds.forEach((id) => expect(vulnIds).toContain(id));
+      expect(critical_paths.length).toBe(expectedCount);
+    });
+
+    test.each([
+      [
+        "respects maxPaths and maxPathLength",
+        {
+          functions: [F("E", true), F("A"), F("B"), F("C"), F("D")],
+          edges: [
+            { from: "E", to: "A" },
+            { from: "A", to: "B" },
+            { from: "B", to: "C" },
+            { from: "C", to: "D" },
+          ],
+        },
+        [V("V1", "D", "critical")],
+        1,
+        5,
+        1,
+        4,
+        0,
+      ],
+    ])(
+      "%s",
+      (
+        _desc,
+        graph,
+        vulns,
+        expectedCount1,
+        pathLen1,
+        _expectedCount2,
+        pathLen2,
+        expectedCount3,
+      ) => {
+        const s = new Store(graph);
+        s.replaceVulnerabilities(vulns);
+        let result = findCriticalAttackPaths(s, 1, "high", pathLen1);
+        expect(result.critical_paths.length).toBe(expectedCount1);
+        if (expectedCount1 > 0) {
+          expect(result.critical_paths[0].path_length).toBe(pathLen1);
+        }
+        result = findCriticalAttackPaths(s, 1, "high", pathLen2);
+        expect(result.critical_paths.length).toBe(expectedCount3);
+      },
+    );
+
+    test("calculates risk_score and exploit_difficulty using scoring service", () => {
+      const graph: Graph = {
+        functions: [F("A", true), F("B")],
+        edges: [{ from: "A", to: "B" }],
+      };
+      const s = new Store(graph);
+      s.replaceVulnerabilities([
+        V("V1", "B", "critical", {
+          package_name: "pkg",
+          introduced_by_ai: true,
+        }),
+      ]);
+      const result = findCriticalAttackPaths(s, 5, "high");
+      expect(result.critical_paths.length).toBe(1);
+      const path = result.critical_paths[0];
+      expect(path.risk_score).toBeGreaterThan(0);
+      expect(["low", "medium", "high"]).toContain(path.exploit_difficulty);
+      expect(path.entry_point_accessible).toBe(true);
+    });
+
+    test.each([
+      [
+        "summary fields are correct",
+        [V("V1", "C", "critical"), V("V2", "B", "high")],
+        "A",
+      ],
+    ])("%s", (_desc, vulns, expectedMostVulnerableEntry) => {
+      const graph: Graph = {
+        functions: [F("A", true), F("B"), F("C")],
+        edges: [
+          { from: "A", to: "B" },
+          { from: "B", to: "C" },
+        ],
+      };
+      const s = new Store(graph);
+      s.replaceVulnerabilities(vulns);
+      const result = findCriticalAttackPaths(s, 5, "high");
+      expect(result.summary.total_critical_paths).toBe(
+        result.critical_paths.length,
+      );
+      expect(result.summary.shortest_path_length).toBe(
+        Math.min(...result.critical_paths.map((p) => p.path_length)),
+      );
+      expect(result.summary.average_path_length).toBeGreaterThan(0);
+      expect(result.summary.most_vulnerable_entry_point).toBe(
+        expectedMostVulnerableEntry,
+      );
+      expect(typeof result.generated_at).toBe("string");
     });
   });
 });

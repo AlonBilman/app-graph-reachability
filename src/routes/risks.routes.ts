@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { getRisks } from "../controllers/risks.controller";
-export const risksRouter = Router();
+import { validateQuery } from "../middleware/validate";
+import { RisksQuerySchema } from "../schemas/risks.schema";
 
-risksRouter.get("/", getRisks);
+export const risksRouter = Router();
+risksRouter.get("/", validateQuery(RisksQuerySchema), getRisks);

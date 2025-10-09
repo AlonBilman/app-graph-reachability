@@ -4,13 +4,9 @@ import {
   findDangerousPathsFromEntrypoints,
 } from "../src/services/reachability";
 import { Store } from "../src/store";
-import type { Graph, Vulnerability, Func } from "../src/types";
+import type { Graph, Vulnerability } from "../src/types";
+import { F, V } from "./helpers";
 
-const F = (id: string, isEntrypoint = false, name = id): Func => ({
-  id,
-  name,
-  isEntrypoint,
-});
 const makeStore = (graph: Graph) => new Store(graph);
 
 // A -> B -> D -> E
@@ -68,77 +64,79 @@ describe("allEntryToTargetPaths", () => {
 });
 
 describe("findDangerousPathsFromEntrypoints", () => {
-  test("groups by vulnerability and returns Func[][] paths", () => {
+  type VulnCase = [
+    desc: string,
+    vulns: Vulnerability[],
+    expected: { vulnIdx: number; paths: string[][] }[],
+    opts?: { maxPathsPerFunc?: number },
+  ];
+
+  const vulnCases: VulnCase[] = [
+    [
+      "groups by vulnerability and returns Func[][] paths",
+      [V("1", "D", "high"), V("2", "E", "low")],
+      [
+        {
+          vulnIdx: 0,
+          paths: [
+            ["A", "B", "D"],
+            ["A", "C", "D"],
+          ],
+        },
+        {
+          vulnIdx: 1,
+          paths: [
+            ["A", "B", "D", "E"],
+            ["A", "C", "D", "E"],
+          ],
+        },
+      ],
+      undefined,
+    ],
+    [
+      "skips unreachable vulnerabilities",
+      [V("1", "D", "high"), V("2", "Z", "critical")],
+      [
+        {
+          vulnIdx: 0,
+          paths: [
+            ["A", "B", "D"],
+            ["A", "C", "D"],
+          ],
+        },
+      ],
+      undefined,
+    ],
+    [
+      "respects maxPathsPerFunc",
+      [V("1", "D", "medium")],
+      [
+        {
+          vulnIdx: 0,
+          paths: [["A", "B", "D"]],
+        },
+      ],
+      { maxPathsPerFunc: 1 },
+    ],
+  ];
+
+  test.each(vulnCases)("%s", (_desc, vulns, expected, opts) => {
     const store = makeStore(baseGraph);
-    const vulnerability: Vulnerability[] = [
-      { id: "1", funcId: "D", severity: "high" },
-      { id: "2", funcId: "E", severity: "low" },
-    ];
-    store.replaceVulnerabilities(vulnerability);
+    store.replaceVulnerabilities(vulns);
+    const groups = findDangerousPathsFromEntrypoints(store, opts);
 
-    const A = (id: string) => store.functions.get(id)!;
+    const actual = groups.map((g) => ({
+      vulnerability: g.vulnerability,
+      paths: g.paths.map((p) => p.map((f) => f.id)),
+    }));
+    const expectedProjected = expected.map(
+      (e: { vulnIdx: number; paths: string[][] }) => ({
+        vulnerability: vulns[e.vulnIdx],
+        paths: e.paths,
+      }),
+    );
 
-    const groups = findDangerousPathsFromEntrypoints(store);
-
-    expect(groups).toEqual([
-      {
-        vulnerability: vulnerability[0],
-        paths: [
-          [A("A"), A("B"), A("D")],
-          [A("A"), A("C"), A("D")],
-        ],
-      },
-      {
-        vulnerability: vulnerability[1],
-        paths: [
-          [A("A"), A("B"), A("D"), A("E")],
-          [A("A"), A("C"), A("D"), A("E")],
-        ],
-      },
-    ]);
-  });
-
-  test("skips unreachable vulnerabilities", () => {
-    const store = makeStore(baseGraph);
-    const vulnerability: Vulnerability[] = [
-      { id: "1", funcId: "D", severity: "high" },
-      { id: "2", funcId: "Z", severity: "critical" }, // unreachable
-    ] as any;
-    store.replaceVulnerabilities(vulnerability as Vulnerability[]);
-
-    const A = (id: string) => store.functions.get(id)!;
-
-    const groups = findDangerousPathsFromEntrypoints(store);
-
-    expect(groups).toEqual([
-      {
-        vulnerability: (vulnerability as Vulnerability[])[0],
-        paths: [
-          [A("A"), A("B"), A("D")],
-          [A("A"), A("C"), A("D")],
-        ],
-      },
-    ]);
-  });
-
-  test("respects maxPathsPerFunc", () => {
-    const store = makeStore(baseGraph);
-    const vulnerability: Vulnerability[] = [
-      { id: "1", funcId: "D", severity: "medium" },
-    ];
-    store.replaceVulnerabilities(vulnerability);
-
-    const A = (id: string) => store.functions.get(id)!;
-
-    const groups = findDangerousPathsFromEntrypoints(store, {
-      maxPathsPerFunc: 1,
-    });
-
-    expect(groups).toEqual([
-      {
-        vulnerability: vulnerability[0],
-        paths: [[A("A"), A("B"), A("D")]], // first path by BFS order
-      },
-    ]);
+    expect(actual).toHaveLength(expectedProjected.length);
+    expect(actual).toStrictEqual(expectedProjected);
   });
 });

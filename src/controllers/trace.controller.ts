@@ -39,8 +39,10 @@ export const getFunctionTrace: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
     const functionId = req.params.id;
-    const allPaths = req.query.all_paths === "true";
-    const limit = parseInt(req.query.limit as string) || Infinity;
+    const { all_paths = false, limit = 10 } = req.query as {
+      all_paths?: boolean;
+      limit?: number;
+    };
 
     if (!store.hasFunction(functionId)) {
       return res.status(404).json({
@@ -50,7 +52,7 @@ export const getFunctionTrace: RequestHandler = (req, res, next) => {
     }
 
     const paths = allEntryToTargetPaths(store, functionId);
-    const response = buildTraceResponse(functionId, paths, allPaths, limit);
+    const response = buildTraceResponse(functionId, paths, all_paths, limit);
 
     res.json(response);
   } catch (error) {
