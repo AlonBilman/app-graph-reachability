@@ -30,8 +30,10 @@ export function invalidateReverseAdj(store: Store): void {
 }
 
 /**
- *  Find all paths from source to target (DIRECTED)
- *
+ * Find all paths from source to target (DIRECTED)
+ * @param store - The in-memory graph store
+ * @param source - Source function ID
+ * @param target - Target function ID
  */
 export function bfsAllPaths(
   store: Store,
@@ -69,8 +71,8 @@ export function bfsAllPaths(
 }
 
 /**
- * DFS: Find all connected components (UNDIRECTED)
- *
+ * Find all connected components (UNDIRECTED)
+ * @param store - The in-memory graph store
  */
 export function findConnectedComponents(store: Store): string[][] {
   const visited = new Set<string>();
@@ -106,7 +108,8 @@ export function findConnectedComponents(store: Store): string[][] {
 
 /**
  * Get undirected neighbors for a node
- *  
+ * @param store - The in-memory graph store
+ * @param id - Function ID
  */
 export function getUndirectedNeighbors(store: Store, id: string): string[] {
   const out = store.getNeighbors(id) ?? [];
@@ -115,7 +118,8 @@ export function getUndirectedNeighbors(store: Store, id: string): string[] {
 }
 /**
  * Find all reachable nodes from a set of sources (DIRECTED)
- * 
+ * @param store - The in-memory graph store
+ * @param sources - Array of source function IDs
  */
 export function bfsReachable(store: Store, sources: string[]): Set<string> {
   const visited = new Set<string>();

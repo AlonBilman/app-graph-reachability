@@ -6,7 +6,7 @@ import {
   getUndirectedNeighbors,
   bfsReachable,
   invalidateReverseAdj,
-} from "../src/services/graphUtils";
+} from "../src/services/graph-utils";
 
 const F = (id: string, isEntrypoint = false, name = id) => ({
   id,
@@ -62,18 +62,8 @@ describe("graphUtils", () => {
           ["A", "C", "D", "E"],
         ],
       ],
-      [
-        "finds all directed paths from X to D",
-        "X",
-        "D",
-        [["X", "D"]],
-      ],
-      [
-        "returns empty for unreachable target",
-        "A",
-        "Y",
-        [],
-      ],
+      ["finds all directed paths from X to D", "X", "D", [["X", "D"]]],
+      ["returns empty for unreachable target", "A", "Y", []],
     ])("%s", (_desc, source, target, expected) => {
       expect(bfsAllPaths(store, source, target)).toEqual(expected);
     });
@@ -82,7 +72,9 @@ describe("graphUtils", () => {
   describe("findConnectedComponents", () => {
     test("finds all undirected components", () => {
       const components = findConnectedComponents(store);
-      const sorted = components.map((c) => c.sort()).sort((a, b) => b.length - a.length);
+      const sorted = components
+        .map((c) => c.sort())
+        .sort((a, b) => b.length - a.length);
       expect(sorted.length).toBe(2);
       expect(sorted[0]).toEqual(["A", "B", "C", "D", "E", "X"]);
       expect(sorted[1]).toEqual(["Y"]);
@@ -91,42 +83,36 @@ describe("graphUtils", () => {
 
   describe("getUndirectedNeighbors", () => {
     test("returns all neighbors regardless of direction", () => {
-      expect(getUndirectedNeighbors(store, "D").sort()).toEqual(["B", "C", "E", "X"].sort());
+      expect(getUndirectedNeighbors(store, "D").sort()).toEqual(
+        ["B", "C", "E", "X"].sort(),
+      );
       expect(getUndirectedNeighbors(store, "Y")).toEqual([]);
     });
   });
 
   describe("bfsReachable", () => {
     test.each([
-      [
-        "from A: should reach A, B, C, D, E",
-        ["A"],
-        ["A", "B", "C", "D", "E"],
-      ],
-      [
-        "from X: should reach X, D, E",
-        ["X"],
-        ["X", "D", "E"],
-      ],
-      [
-        "from Y: only itself",
-        ["Y"],
-        ["Y"],
-      ],
+      ["from A: should reach A, B, C, D, E", ["A"], ["A", "B", "C", "D", "E"]],
+      ["from X: should reach X, D, E", ["X"], ["X", "D", "E"]],
+      ["from Y: only itself", ["Y"], ["Y"]],
       [
         "from A and X: all except Y",
         ["A", "X"],
         ["A", "B", "C", "D", "E", "X"],
       ],
     ])("%s", (_desc, sources, expected) => {
-      expect(Array.from(bfsReachable(store, sources)).sort()).toEqual(expected.sort());
+      expect(Array.from(bfsReachable(store, sources)).sort()).toEqual(
+        expected.sort(),
+      );
     });
   });
 
   describe("invalidateReverseAdj", () => {
     test("clears the reverse adjacency cache and still works", () => {
       invalidateReverseAdj(store);
-      expect(getUndirectedNeighbors(store, "D").sort()).toEqual(["B", "C", "E", "X"].sort());
+      expect(getUndirectedNeighbors(store, "D").sort()).toEqual(
+        ["B", "C", "E", "X"].sort(),
+      );
     });
   });
 });

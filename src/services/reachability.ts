@@ -1,8 +1,13 @@
 import { Store } from "../store";
 import { Func, DangerousGroup } from "../types";
-import { bfsAllPaths } from "./graphUtils";
+import { bfsAllPaths } from "./graph-utils";
 
-// returns all paths from any entrypoint to the target function id with bfs
+/**
+ * Finds all paths from any entrypoint to the target function (DIRECTED).
+ * Uses BFS for each entrypoint.
+ * @param store - The in-memory graph store
+ * @param target - Target function ID
+ */
 export function allEntryToTargetPaths(
   store: Store,
   target: string,
@@ -15,6 +20,12 @@ export function allEntryToTargetPaths(
   return results;
 }
 
+/**
+ * For each vulnerability, finds all exploit paths from entrypoints to the vulnerable function.
+ * Groups results by vulnerability.
+ * @param store - The in-memory graph store
+ * @param opts - Optional: maxPathsPerFunc to limit number of paths per vulnerability
+ */
 export function findDangerousPathsFromEntrypoints(
   store: Store,
   opts?: { maxPathsPerFunc?: number },
