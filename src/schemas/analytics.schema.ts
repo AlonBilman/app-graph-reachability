@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { Severity } from "./common";
 
+export const ComponentQuerySchema = z.object({
+  //adding schema for consistency
+});
+
 export const AttackPathQuerySchema = z.object({
   max_paths: z
     .string()

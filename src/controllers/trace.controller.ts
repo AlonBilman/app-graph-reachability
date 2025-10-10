@@ -64,6 +64,10 @@ export const getVulnerabilityTrace: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
     const vulnId = req.params.id;
+    const { all_paths = false, limit = 10 } = req.query as {
+      all_paths?: boolean;
+      limit?: number;
+    };
 
     const vulnerability = store.vulnerabilities.find((v) => v.id === vulnId);
     if (!vulnerability) {
@@ -77,11 +81,12 @@ export const getVulnerabilityTrace: RequestHandler = (req, res, next) => {
     };
     const scoreBreakdown = getScoreBreakdown(vulnWithReachability);
     const score = calculateTotalScore(scoreBreakdown);
+
     const response = buildTraceResponse(
       vulnerability.funcId,
       paths,
-      false,
-      Infinity,
+      all_paths,
+      limit,
     );
     //add vulnerability details to response
     response.vulnerability_id = vulnId;
