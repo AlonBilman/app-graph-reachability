@@ -13,3 +13,11 @@ api.use("/risks", risksRouter); // GET  /risks
 api.use("/functions", traceRouter); // GET  /functions/:id/trace
 api.use("/vulns", vulnTraceRouter); // Add convenience endpoint
 api.use("/analytics", analyticsRouter); // Analytics endpoints
+
+api.get("/health", (_req, res) => {
+  res.json({
+    status: "ok",
+    uptime: Math.round(process.uptime()),
+    timestamp: new Date().toISOString(),
+  });
+});

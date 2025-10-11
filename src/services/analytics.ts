@@ -113,19 +113,19 @@ function analyzeVulnerabilities(
   const vulnsByFunc = new Map<string, string[]>();
 
   for (const vuln of vulnerabilities) {
-    if (mainComponentSet.has(vuln.funcId)) {
+    if (mainComponentSet.has(vuln.func_id)) {
       mainVulnCount++;
     }
-    if (reachable.has(vuln.funcId)) {
+    if (reachable.has(vuln.func_id)) {
       reachableVulnCount++;
     }
-    if (deadCodeSet.has(vuln.funcId)) {
+    if (deadCodeSet.has(vuln.func_id)) {
       isolatedVulnCount++;
     }
-    if (!vulnsByFunc.has(vuln.funcId)) {
-      vulnsByFunc.set(vuln.funcId, []);
+    if (!vulnsByFunc.has(vuln.func_id)) {
+      vulnsByFunc.set(vuln.func_id, []);
     }
-    vulnsByFunc.get(vuln.funcId)!.push(vuln.id);
+    vulnsByFunc.get(vuln.func_id)!.push(vuln.id);
   }
 
   return {

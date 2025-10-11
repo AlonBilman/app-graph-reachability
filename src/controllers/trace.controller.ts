@@ -2,7 +2,9 @@ import type { RequestHandler } from "express";
 import { requireStore } from "./graph.controller";
 import { allEntryToTargetPaths } from "../services/reachability";
 import { calculateTotalScore, getScoreBreakdown } from "../services/scoring";
-import type { TraceResponse } from "../types";
+import type { TraceResponse } from "../types/store";
+import { NotFoundError } from "../errors/api-error";
+import type { TraceQueryDTO } from "../schemas/trace.schema";
 
 function buildTraceResponse(
   functionId: string,
@@ -39,16 +41,10 @@ export const getFunctionTrace: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
     const functionId = req.params.id;
-    const { all_paths = false, limit = 10 } = req.query as {
-      all_paths?: boolean;
-      limit?: number;
-    };
+    const { all_paths = false, limit = 10 } = req.query as TraceQueryDTO;
 
     if (!store.hasFunction(functionId)) {
-      return res.status(404).json({
-        function_id: functionId,
-        error: "Function not found",
-      });
+      throw new NotFoundError("Function", functionId);
     }
 
     const paths = allEntryToTargetPaths(store, functionId);
@@ -64,17 +60,14 @@ export const getVulnerabilityTrace: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
     const vulnId = req.params.id;
-    const { all_paths = false, limit = 10 } = req.query as {
-      all_paths?: boolean;
-      limit?: number;
-    };
+    const { all_paths = false, limit = 10 } = req.query as TraceQueryDTO;
 
     const vulnerability = store.vulnerabilities.find((v) => v.id === vulnId);
     if (!vulnerability) {
-      return res.status(404).json({ error: "Vulnerability not found" });
+      throw new NotFoundError("Vulnerability", vulnId);
     }
 
-    const paths = allEntryToTargetPaths(store, vulnerability.funcId);
+    const paths = allEntryToTargetPaths(store, vulnerability.func_id);
     const vulnWithReachability = {
       ...vulnerability,
       reachable: paths.length > 0,
@@ -83,7 +76,7 @@ export const getVulnerabilityTrace: RequestHandler = (req, res, next) => {
     const score = calculateTotalScore(scoreBreakdown);
 
     const response = buildTraceResponse(
-      vulnerability.funcId,
+      vulnerability.func_id,
       paths,
       all_paths,
       limit,

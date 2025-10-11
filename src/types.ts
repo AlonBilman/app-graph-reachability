@@ -18,9 +18,9 @@ export interface Graph {
 
 export interface Vulnerability {
   id: string;
-  funcId: string;
+  func_id: string;
   severity: Severity;
-  cweId?: string;
+  cwe_id?: string;
   package_name?: string;
   introduced_by_ai?: boolean;
   reachable?: boolean;
@@ -103,6 +103,7 @@ export interface ComponentAnalysis {
     main_component_coverage: number;
   };
 }
+
 export interface AttackPath {
   vulnerability_id: string;
   severity: Severity;
@@ -163,6 +164,7 @@ export interface SecurityReport {
   }>;
   recommendations: string[];
 }
+
 export interface CacheEntry<T> {
   data: T;
   timestamp: number;

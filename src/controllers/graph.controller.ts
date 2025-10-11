@@ -2,16 +2,14 @@ import type { RequestHandler } from "express";
 import { Store } from "../store";
 import type { GraphDTO } from "../schemas/graph.schema";
 import type { GraphLoadResponse } from "../types";
+import { GraphNotLoadedError } from "../errors/api-error";
 
 let store: Store | null = null;
 
 export const getStore = () => store;
 
 export const requireStore = () => {
-  if (!store)
-    throw Object.assign(new Error("Graph not loaded. POST /graph first."), {
-      status: 400,
-    });
+  if (!store) throw new GraphNotLoadedError();
   return store;
 };
 

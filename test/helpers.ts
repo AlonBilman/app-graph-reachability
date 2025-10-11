@@ -1,4 +1,3 @@
-// test/helpers.ts
 import type { Func, Vulnerability } from "../src/types";
 
 export const F = (id: string, isEntrypoint = false, name = id): Func => ({
@@ -9,12 +8,12 @@ export const F = (id: string, isEntrypoint = false, name = id): Func => ({
 
 export const V = (
   id: string,
-  funcId: string,
+  func_id: string,
   severity: Vulnerability["severity"],
   extra?: Partial<Vulnerability>,
 ): Vulnerability => ({
   id,
-  funcId,
+  func_id,
   severity,
   reachable: false,
   ...extra,

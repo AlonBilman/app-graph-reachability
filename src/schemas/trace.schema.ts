@@ -13,3 +13,5 @@ export const TraceQuerySchema = z.object({
       message: "limit must be a positive integer",
     }),
 });
+
+export type TraceQueryDTO = z.infer<typeof TraceQuerySchema>;

@@ -7,30 +7,27 @@ import {
   hierarchyLevels,
 } from "../services/scoring";
 import type { RisksListResponse, RiskResponse, Severity } from "../types";
+import type { RisksQueryDTO } from "../schemas/risks.schema";
 
 export const getRisks: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
-    const { min_severity, limit, reachable_only } = req.query as {
-      min_severity?: Severity;
-      limit?: number;
-      reachable_only?: boolean;
-    };
+    const { min_severity, limit, reachable_only } = req.query as RisksQueryDTO;
 
     const risks: RiskResponse[] = store.vulnerabilities
       .filter((vuln) => {
-        const exists = store.hasFunction(vuln.funcId);
+        const exists = store.hasFunction(vuln.func_id);
         if (!exists) {
           console.warn(
-            `Skipping vulnerability ${vuln.id}: function ${vuln.funcId} not found`,
+            `Skipping vulnerability ${vuln.id}: function ${vuln.func_id} not found`,
           );
         }
         return exists;
       })
       .map((vuln) => {
-        const paths = allEntryToTargetPaths(store, vuln.funcId);
+        const paths = allEntryToTargetPaths(store, vuln.func_id);
         const reachable = paths.length > 0;
-        const func = store.getFunctionOrThrow(vuln.funcId);
+        const func = store.getFunctionOrThrow(vuln.func_id);
 
         const vulnWithReachability = { ...vuln, reachable };
         const scoreBreakdown = getScoreBreakdown(vulnWithReachability);
@@ -38,10 +35,10 @@ export const getRisks: RequestHandler = (req, res, next) => {
 
         return {
           id: vuln.id,
-          function_id: vuln.funcId,
+          function_id: vuln.func_id,
           function_name: func.name,
           severity: vuln.severity,
-          cwe: vuln.cweId,
+          cwe: vuln.cwe_id,
           reachable,
           score,
           score_breakdown: scoreBreakdown,

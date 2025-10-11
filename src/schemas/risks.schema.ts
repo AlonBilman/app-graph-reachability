@@ -15,3 +15,5 @@ export const RisksQuerySchema = z.object({
     .optional()
     .transform((v) => v !== "false"),
 });
+
+export type RisksQueryDTO = z.infer<typeof RisksQuerySchema>;

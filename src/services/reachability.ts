@@ -47,7 +47,7 @@ export function findDangerousPathsFromEntrypoints(
   const groups: DangerousGroup[] = [];
 
   for (const vuln of store.vulnerabilities) {
-    const idPaths = getIdPaths(vuln.funcId);
+    const idPaths = getIdPaths(vuln.func_id);
     if (idPaths.length === 0) continue; //skip unreachable
 
     const funcPaths: Func[][] = idPaths.map((ids) =>

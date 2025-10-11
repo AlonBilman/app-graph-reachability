@@ -5,10 +5,16 @@ import {
   findCriticalAttackPaths,
 } from "../services/analytics";
 import { Severity } from "../types";
+import type {
+  AttackPathQueryDTO,
+  ComponentQueryDTO,
+} from "../schemas/analytics.schema";
 
-export const getComponentAnalysis: RequestHandler = (_req, res, next) => {
+export const getComponentAnalysis: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
+    // unused
+    const _q = req.query as ComponentQueryDTO;
     const result = findConnectedComponents(store);
     res.json(result);
   } catch (e) {
@@ -19,11 +25,8 @@ export const getComponentAnalysis: RequestHandler = (_req, res, next) => {
 export const getAttackPaths: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
-    const { max_paths, min_severity, max_path_length } = req.query as {
-      max_paths?: number;
-      min_severity?: Severity;
-      max_path_length?: number;
-    };
+    const { max_paths, min_severity, max_path_length } =
+      req.query as AttackPathQueryDTO;
     const result = findCriticalAttackPaths(
       store,
       max_paths ?? 10,

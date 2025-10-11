@@ -9,7 +9,7 @@ import { validate, validateQuery } from "../src/middleware/validate";
 import { GraphSchema } from "../src/schemas/graph.schema";
 import { VulnsSchema } from "../src/schemas/vulns.schema";
 import { TraceQuerySchema } from "../src/schemas/trace.schema";
-import { mockReq, mockRes, F, V } from "./helpers";
+import { mockReq, mockRes, F } from "./helpers";
 
 describe("controller validation & error paths", () => {
   const runValidate = (schema: unknown, body: any) => {
@@ -21,7 +21,7 @@ describe("controller validation & error paths", () => {
     return { next, req, res };
   };
 
-  test("POST /vulns with invalid funcId -> 400", () => {
+  test("POST /vulns with invalid func_id -> validation error", () => {
     postGraph(
       mockReq({
         body: {
@@ -33,22 +33,21 @@ describe("controller validation & error paths", () => {
       vi.fn(),
     );
 
-    const vulnsRes = mockRes();
+    const next = vi.fn();
     postVulns(
       mockReq({
-        body: [{ id: "V-1", funcId: "NON_EXISTENT", severity: "high" }],
+        body: [{ id: "V-1", func_id: "NON_EXISTENT", severity: "high" }],
       }),
-      vulnsRes,
-      vi.fn(),
+      mockRes(),
+      next,
     );
 
-    const out = vulnsRes._get();
-    expect(out.statusCode).toBe(400);
-    expect(out.jsonBody).toHaveProperty("ok", false);
-    expect(String(out.jsonBody.error)).toMatch(/unknown functions/i);
+    expect(next).toHaveBeenCalled();
+    const err = next.mock.calls[0][0];
+    expect(err.message).toMatch(/unknown functions/i);
   });
 
-  test("POST /vulns duplicate vulnerability id -> 400", () => {
+  test("POST /vulns duplicate vulnerability id -> conflict error", () => {
     postGraph(
       mockReq({
         body: {
@@ -60,22 +59,21 @@ describe("controller validation & error paths", () => {
       vi.fn(),
     );
 
-    const dupRes = mockRes();
+    const next = vi.fn();
     postVulns(
       mockReq({
         body: [
-          { id: "V1", funcId: "F1", severity: "high" },
-          { id: "V1", funcId: "F1", severity: "low" },
+          { id: "V1", func_id: "F1", severity: "high" },
+          { id: "V1", func_id: "F1", severity: "low" },
         ],
       }),
-      dupRes,
-      vi.fn(),
+      mockRes(),
+      next,
     );
 
-    const out = dupRes._get();
-    expect(out.statusCode).toBe(400);
-    expect(out.jsonBody).toHaveProperty("ok", false);
-    expect(String(out.jsonBody.error)).toMatch(/duplicate vulnerability id/i);
+    expect(next).toHaveBeenCalled();
+    const err = next.mock.calls[0][0];
+    expect(err.message).toMatch(/duplicate vulnerability id/i);
   });
 
   describe("POST /graph -> validate(GraphSchema) -> 400", () => {
@@ -99,6 +97,28 @@ describe("controller validation & error paths", () => {
         },
         expectMsg: "All edges must reference existing function ids",
       },
+      {
+        name: "self-loop not allowed",
+        body: {
+          functions: [{ id: "A", name: "A", isEntrypoint: true }],
+          edges: [{ from: "A", to: "A" }],
+        },
+        expectMsg: "Self-loops not allowed",
+      },
+      {
+        name: "duplicate edges not allowed",
+        body: {
+          functions: [
+            { id: "A", name: "A", isEntrypoint: true },
+            { id: "B", name: "B", isEntrypoint: false },
+          ],
+          edges: [
+            { from: "A", to: "B" },
+            { from: "A", to: "B" },
+          ],
+        },
+        expectMsg: "Duplicate edges not allowed",
+      },
     ])("$name", ({ body, expectMsg }) => {
       const { next } = runValidate(GraphSchema, body);
       expect(next).toHaveBeenCalled();
@@ -121,13 +141,17 @@ describe("controller validation & error paths", () => {
       vi.fn(),
     );
 
-    const traceRes = mockRes();
-    getFunctionTrace(mockReq({ params: { id: "MISSING" } }), traceRes, vi.fn());
+    const next = vi.fn();
+    getFunctionTrace(
+      mockReq({ params: { id: "MISSING" }, query: {} }),
+      mockRes(),
+      next,
+    );
 
-    const out = traceRes._get();
-    expect(out.statusCode).toBe(404);
-    expect(out.jsonBody).toHaveProperty("function_id", "MISSING");
-    expect(out.jsonBody).toHaveProperty("error");
+    expect(next).toHaveBeenCalled();
+    const err = next.mock.calls[0][0];
+    expect(err.status).toBe(404);
+    expect(err.message).toContain("Function not found");
   });
 
   test("GET /vulns/:id/trace when vulnerability missing -> 404", () => {
@@ -142,25 +166,28 @@ describe("controller validation & error paths", () => {
       vi.fn(),
     );
 
-    const vulnTraceRes = mockRes();
+    const next = vi.fn();
     getVulnerabilityTrace(
-      mockReq({ params: { id: "NO_SUCH" } }),
-      vulnTraceRes,
-      vi.fn(),
+      mockReq({ params: { id: "NO_SUCH" }, query: {} }),
+      mockRes(),
+      next,
     );
 
-    const out = vulnTraceRes._get();
-    expect(out.statusCode).toBe(404);
-    expect(out.jsonBody).toHaveProperty("error");
+    expect(next).toHaveBeenCalled();
+    const err = next.mock.calls[0][0];
+    expect(err.status).toBe(404);
+    expect(err.message).toContain("Vulnerability not found");
   });
 
-  test("validate(VulnsSchema) -> missing funcId field -> 400 (case-insensitive)", () => {
-    const { next } = runValidate(VulnsSchema, [{ id: "V-1", severity: "high" }]);
+  test("validate(VulnsSchema) -> missing func_id field -> 400", () => {
+    const { next } = runValidate(VulnsSchema, [
+      { id: "V-1", severity: "high" },
+    ]);
     expect(next).toHaveBeenCalled();
     const err = next.mock.calls[0][0];
     expect(err).toBeInstanceOf(Error);
     expect(err.status).toBe(400);
-    expect(String(err.message)).toMatch(/funcid/i);
+    expect(String(err.message)).toMatch(/func_id/i);
   });
 
   test("validateQuery(TraceQuerySchema) should transform types", () => {
@@ -174,5 +201,21 @@ describe("controller validation & error paths", () => {
     expect(next).toHaveBeenCalled();
     expect(req.query.all_paths).toBe(true);
     expect(req.query.limit).toBe(5);
+  });
+
+  test("validate(VulnsSchema) -> valid data passes", () => {
+    const { next, req } = runValidate(VulnsSchema, [
+      {
+        id: "V1",
+        func_id: "F1",
+        severity: "high",
+        cwe_id: "CWE-089",
+        package_name: "test-pkg",
+        introduced_by_ai: false,
+      },
+    ]);
+    expect(next).toHaveBeenCalled();
+    expect(next.mock.calls[0][0]).toBeUndefined(); // No error
+    expect(req.body[0].func_id).toBe("F1");
   });
 });

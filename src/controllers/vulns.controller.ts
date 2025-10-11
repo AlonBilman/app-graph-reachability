@@ -2,22 +2,24 @@ import type { RequestHandler } from "express";
 import { requireStore } from "./graph.controller";
 import type { VulnDTO } from "../schemas/vulns.schema";
 import type { VulnerabilityLoadResponse } from "../types";
+import { ValidationError, ConflictError } from "../errors/api-error";
 
 export const postVulns: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
     const vulnsData: VulnDTO[] = req.body;
 
-    // validate funcId existence and duplicate vuln ids
-    const invalid = vulnsData.filter((v) => !store.hasFunction(v.funcId));
+    // Validate func_id existence
+    const invalid = vulnsData.filter((v) => !store.hasFunction(v.func_id));
     if (invalid.length) {
-      return res.status(400).json({
-        ok: false,
-        error: `Some vulnerabilities reference unknown functions: ${invalid
-          .map((v) => v.funcId)
+      throw new ValidationError(
+        `Some vulnerabilities reference unknown functions: ${invalid
+          .map((v) => v.func_id)
           .join(", ")}`,
-      });
+      );
     }
+
+    // Check for duplicate vulnerability IDs
     const ids = new Set<string>();
     const dup = vulnsData.find((v) => {
       if (ids.has(v.id)) return true;
@@ -25,15 +27,13 @@ export const postVulns: RequestHandler = (req, res, next) => {
       return false;
     });
     if (dup) {
-      return res
-        .status(400)
-        .json({ ok: false, error: `Duplicate vulnerability id: ${dup.id}` });
+      throw new ConflictError(`Duplicate vulnerability id: ${dup.id}`);
     }
     const vulnerabilities = vulnsData.map((dto) => ({
       id: dto.id,
-      funcId: dto.funcId,
+      func_id: dto.func_id,
       severity: dto.severity,
-      cweId: dto.cweId,
+      cwe_id: dto.cwe_id,
       package_name: dto.package_name,
       introduced_by_ai: dto.introduced_by_ai,
     }));
