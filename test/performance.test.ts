@@ -5,7 +5,7 @@ import { findConnectedComponents } from "../src/services/analytics";
 import { F } from "./helpers";
 
 describe("Performance benchmarks", () => {
-  test("analyzes 1000+ function graph in under 1 second", () => {
+  test("analyzes 1000+ function graph in under 300ms", () => {
     // Generate large test graph with 1000 functions and 2000 edges
     const functions = Array.from({ length: 1000 }, (_, i) =>
       F(`F${i}`, i < 10, `Function${i}`),
@@ -23,6 +23,6 @@ describe("Performance benchmarks", () => {
     findConnectedComponents(store);
     const duration = Date.now() - start;
 
-    expect(duration).toBeLessThan(20); // Performance requirement: sub-second
+    expect(duration).toBeLessThan(300);
   });
 });

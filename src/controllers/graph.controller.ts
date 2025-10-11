@@ -1,7 +1,7 @@
 import type { RequestHandler } from "express";
 import { Store } from "../store";
 import type { GraphDTO } from "../schemas/graph.schema";
-import type { GraphLoadResponse } from "../types.ts";
+import type { GraphLoadResponse } from "../types";
 
 let store: Store | null = null;
 
