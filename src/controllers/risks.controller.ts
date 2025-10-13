@@ -6,7 +6,7 @@ import {
   getScoreBreakdown,
   hierarchyLevels,
 } from "../services/scoring";
-import type { RisksListResponse, RiskResponse, Severity } from "../types";
+import type { RisksListResponse, RiskResponse } from "../types";
 import type { RisksQueryDTO } from "../schemas/risks.schema";
 
 export const getRisks: RequestHandler = (req, res, next) => {

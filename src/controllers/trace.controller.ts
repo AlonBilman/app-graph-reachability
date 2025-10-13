@@ -2,7 +2,7 @@ import type { RequestHandler } from "express";
 import { requireStore } from "./graph.controller";
 import { allEntryToTargetPaths } from "../services/reachability";
 import { calculateTotalScore, getScoreBreakdown } from "../services/scoring";
-import type { TraceResponse } from "../types/store";
+import type { TraceResponse } from "../types";
 import { NotFoundError } from "../errors/api-error";
 import type { TraceQueryDTO } from "../schemas/trace.schema";
 

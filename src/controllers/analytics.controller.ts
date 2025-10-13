@@ -4,17 +4,15 @@ import {
   findConnectedComponents,
   findCriticalAttackPaths,
 } from "../services/analytics";
-import { Severity } from "../types";
 import type {
   AttackPathQueryDTO,
-  ComponentQueryDTO,
+  //ComponentQueryDTO,
 } from "../schemas/analytics.schema";
 
-export const getComponentAnalysis: RequestHandler = (req, res, next) => {
+export const getComponentAnalysis: RequestHandler = (_req, res, next) => {
   try {
     const store = requireStore();
-    // unused
-    const _q = req.query as ComponentQueryDTO;
+    // unused ComponentQueryDTO but kept for future use
     const result = findConnectedComponents(store);
     res.json(result);
   } catch (e) {
