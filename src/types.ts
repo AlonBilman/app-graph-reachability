@@ -3,7 +3,7 @@ export type Severity = "low" | "medium" | "high" | "critical";
 export interface Func {
   id: string;
   name: string;
-  isEntrypoint: boolean;
+  is_entrypoint: boolean;
 }
 
 export interface Edge {

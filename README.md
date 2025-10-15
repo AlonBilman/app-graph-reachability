@@ -28,8 +28,8 @@ Server runs on `http://localhost:3000`
 ```json
 {
   "functions": [
-    { "id": "F1", "name": "handler", "isEntrypoint": true },
-    { "id": "F2", "name": "service", "isEntrypoint": false }
+    { "id": "F1", "name": "handler", "is_entrypoint": true },
+    { "id": "F2", "name": "service", "is_entrypoint": false }
   ],
   "edges": [{ "from": "F1", "to": "F2" }]
 }

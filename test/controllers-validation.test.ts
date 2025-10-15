@@ -82,8 +82,8 @@ describe("controller validation & error paths", () => {
         name: "duplicate function ids",
         body: {
           functions: [
-            { id: "A", name: "A", isEntrypoint: true },
-            { id: "A", name: "A-dup", isEntrypoint: false },
+            { id: "A", name: "A", is_entrypoint: true },
+            { id: "A", name: "A-dup", is_entrypoint: false },
           ],
           edges: [],
         },
@@ -92,7 +92,7 @@ describe("controller validation & error paths", () => {
       {
         name: "edge references missing functions",
         body: {
-          functions: [{ id: "A", name: "A", isEntrypoint: true }],
+          functions: [{ id: "A", name: "A", is_entrypoint: true }],
           edges: [{ from: "A", to: "B" }],
         },
         expectMsg: "All edges must reference existing function ids",
@@ -100,7 +100,7 @@ describe("controller validation & error paths", () => {
       {
         name: "self-loop not allowed",
         body: {
-          functions: [{ id: "A", name: "A", isEntrypoint: true }],
+          functions: [{ id: "A", name: "A", is_entrypoint: true }],
           edges: [{ from: "A", to: "A" }],
         },
         expectMsg: "Self-loops not allowed",
@@ -109,8 +109,8 @@ describe("controller validation & error paths", () => {
         name: "duplicate edges not allowed",
         body: {
           functions: [
-            { id: "A", name: "A", isEntrypoint: true },
-            { id: "B", name: "B", isEntrypoint: false },
+            { id: "A", name: "A", is_entrypoint: true },
+            { id: "B", name: "B", is_entrypoint: false },
           ],
           edges: [
             { from: "A", to: "B" },

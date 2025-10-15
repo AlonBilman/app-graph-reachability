@@ -13,7 +13,7 @@ export const Func = z.object({
     .string()
     .min(1, "Function name cannot be empty")
     .max(200, "Function name too long"),
-  isEntrypoint: z.boolean(),
+  is_entrypoint: z.boolean(),
 });
 
 export const Edge = z.object({

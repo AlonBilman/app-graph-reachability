@@ -1,9 +1,9 @@
 import type { Func, Vulnerability } from "../src/types";
 
-export const F = (id: string, isEntrypoint = false, name = id): Func => ({
+export const F = (id: string, is_entrypoint = false, name = id): Func => ({
   id,
   name,
-  isEntrypoint,
+  is_entrypoint,
 });
 
 export const V = (

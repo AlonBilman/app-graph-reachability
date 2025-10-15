@@ -18,7 +18,7 @@ function loadGraph(graph: Graph | GraphDTO): Loaded {
   const entrypointIds: string[] = [];
 
   for (const fn of graph.functions) {
-    if (fn.isEntrypoint) entrypointIds.push(fn.id);
+    if (fn.is_entrypoint) entrypointIds.push(fn.id);
     functions.set(fn.id, fn);
   }
 

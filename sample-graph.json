@@ -3,162 +3,162 @@
     {
       "id": "F_auth_login",
       "name": "POST /auth/login",
-      "isEntrypoint": true
+      "is_entrypoint": true
     },
     {
       "id": "F_auth_register",
       "name": "POST /auth/register",
-      "isEntrypoint": true
+      "is_entrypoint": true
     },
     {
       "id": "F_users_list",
       "name": "GET /users",
-      "isEntrypoint": true
+      "is_entrypoint": true
     },
     {
       "id": "F_users_profile",
       "name": "GET /users/:id",
-      "isEntrypoint": true
+      "is_entrypoint": true
     },
     {
       "id": "F_admin_dashboard",
       "name": "GET /admin/dashboard",
-      "isEntrypoint": true
+      "is_entrypoint": true
     },
     {
       "id": "F_webhook_github",
       "name": "POST /webhooks/github",
-      "isEntrypoint": true
+      "is_entrypoint": true
     },
     {
       "id": "F_scheduled_cleanup",
       "name": "ScheduledJob.cleanupOldSessions",
-      "isEntrypoint": true
+      "is_entrypoint": true
     },
     {
       "id": "F_auth_service",
       "name": "AuthService.authenticate",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_user_service",
       "name": "UserService.findById",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_user_service_list",
       "name": "UserService.listUsers",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_jwt_verify",
       "name": "JwtUtil.verifyToken",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_jwt_sign",
       "name": "JwtUtil.signToken",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_password_hash",
       "name": "CryptoUtil.hashPassword",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_password_verify",
       "name": "CryptoUtil.verifyPassword",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_db_user_find",
       "name": "UserRepository.findById",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_db_user_create",
       "name": "UserRepository.create",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_db_user_list",
       "name": "UserRepository.findAll",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_db_session_cleanup",
       "name": "SessionRepository.deleteExpired",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_query_parser",
       "name": "QueryParser.parseFilters",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_sql_builder",
       "name": "SqlBuilder.buildQuery",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_cache_get",
       "name": "RedisCache.get",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_cache_set",
       "name": "RedisCache.set",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_logger",
       "name": "Logger.info",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_email_send",
       "name": "EmailService.sendWelcome",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_webhook_parser",
       "name": "WebhookParser.parseGithub",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_json_parser",
       "name": "JsonUtil.deepParse",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_xml_parser",
       "name": "XmlUtil.parseDocument",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_file_upload",
       "name": "FileService.uploadAvatar",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_image_resize",
       "name": "ImageProcessor.resize",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_deprecated_utils",
       "name": "LegacyUtils.oldHashFunction",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_unused_feature",
       "name": "BetaFeature.experimentalSort",
-      "isEntrypoint": false
+      "is_entrypoint": false
     },
     {
       "id": "F_third_party_lib",
       "name": "VendorLib.processData",
-      "isEntrypoint": false
+      "is_entrypoint": false
     }
   ],
   "edges": [
@@ -198,3 +198,4 @@
     { "from": "F_file_upload", "to": "F_image_resize" }
   ]
 }
+
