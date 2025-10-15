@@ -1,5 +1,5 @@
 import { Store } from "../store";
-import { Func, DangerousGroup } from "../types";
+import type { Func, DangerousGroup } from "../types/domain.types";
 import { bfsAllPaths } from "./graph-utils";
 
 /**

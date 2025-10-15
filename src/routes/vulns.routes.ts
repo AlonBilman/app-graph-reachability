@@ -1,7 +1,12 @@
 import { Router } from "express";
-import { postVulns } from "../controllers/vulns.controller";
-import { validate } from "../middleware/validate";
-import { VulnsSchema } from "../schemas/vulns.schema";
+import { postVulns, getVulns } from "../controllers/vulns.controller";
+import { validateBody } from "../middleware/validate";
+import { VulnerabilityLoadRequestDTOSchema } from "../schemas/vulns.schema";
 
 export const vulnsRouter = Router();
-vulnsRouter.post("/", validate(VulnsSchema), postVulns);
+vulnsRouter.post(
+  "/",
+  validateBody(VulnerabilityLoadRequestDTOSchema),
+  postVulns,
+);
+vulnsRouter.get("/", getVulns);

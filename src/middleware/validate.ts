@@ -23,7 +23,7 @@ function createValidator<
     };
 }
 
-export const validate = createValidator(
+export const validateBody = createValidator(
   "body",
   "Request body validation failed",
 );

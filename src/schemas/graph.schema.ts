@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const Func = z.object({
+export const FunctionDTOSchema = z.object({
   id: z
     .string()
     .min(1, "Function ID cannot be empty")
@@ -16,18 +16,18 @@ export const Func = z.object({
   is_entrypoint: z.boolean(),
 });
 
-export const Edge = z.object({
+export const EdgeDTOSchema = z.object({
   from: z.string().min(1, "Edge 'from' cannot be empty"),
   to: z.string().min(1, "Edge 'to' cannot be empty"),
 });
 
-export const GraphSchema = z
+export const GraphLoadRequestDTOSchema = z
   .object({
     functions: z
-      .array(Func)
+      .array(FunctionDTOSchema)
       .nonempty("Graph must have at least one function")
       .max(10000, "Too many functions (max: 10000)"),
-    edges: z.array(Edge).max(50000, "Too many edges (max: 50000)"),
+    edges: z.array(EdgeDTOSchema).max(50000, "Too many edges (max: 50000)"),
   })
   .refine(
     (g) => {
@@ -45,7 +45,6 @@ export const GraphSchema = z
   )
   .refine(
     (g) => {
-      // Prevent self-loops
       return g.edges.every((e) => e.from !== e.to);
     },
     {
@@ -54,11 +53,12 @@ export const GraphSchema = z
   )
   .refine(
     (g) => {
-      // Prevent duplicate edges
       const edgeSet = new Set(g.edges.map((e) => `${e.from}->${e.to}`));
       return edgeSet.size === g.edges.length;
     },
     { message: "Duplicate edges not allowed" },
   );
 
-export type GraphDTO = z.infer<typeof GraphSchema>;
+export type FunctionDTO = z.infer<typeof FunctionDTOSchema>;
+export type EdgeDTO = z.infer<typeof EdgeDTOSchema>;
+export type GraphDTO = z.infer<typeof GraphLoadRequestDTOSchema>;

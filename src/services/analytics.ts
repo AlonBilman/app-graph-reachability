@@ -4,7 +4,7 @@ import type {
   Severity,
   AttackPathAnalysis,
   AttackPath,
-} from "../types";
+} from "../types/domain.types";
 import {
   findConnectedComponents as findComponents,
   bfsReachable,

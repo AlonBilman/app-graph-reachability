@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Severity } from "./common";
 
-export const Vulnerability = z.object({
+export const VulnerabilityDTOSchema = z.object({
   id: z
     .string()
     .min(1, "Vulnerability ID cannot be empty")
@@ -13,8 +13,11 @@ export const Vulnerability = z.object({
   introduced_by_ai: z.boolean().optional(),
 });
 
-export const VulnsSchema = z
-  .array(Vulnerability)
+export const VulnerabilityLoadRequestDTOSchema = z
+  .array(VulnerabilityDTOSchema)
   .max(1000, "Too many vulnerabilities (max: 1000)");
 
-export type VulnDTO = z.infer<typeof Vulnerability>;
+export type VulnerabilityDTO = z.infer<typeof VulnerabilityDTOSchema>;
+export type VulnerabilityLoadRequestDTO = z.infer<
+  typeof VulnerabilityLoadRequestDTOSchema
+>;

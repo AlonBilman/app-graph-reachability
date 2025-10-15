@@ -1,4 +1,8 @@
-import { Vulnerability, Severity, ScoreBreakdown } from "../types";
+import type {
+  Vulnerability,
+  Severity,
+  ScoreBreakdown,
+} from "../types/domain.types";
 
 export const baseScore: Record<Severity, number> = {
   critical: 8,

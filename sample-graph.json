@@ -198,4 +198,3 @@
     { "from": "F_file_upload", "to": "F_image_resize" }
   ]
 }
-

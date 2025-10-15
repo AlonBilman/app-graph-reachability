@@ -1,4 +1,4 @@
-import type { Func, Vulnerability } from "../src/types";
+import type { Func, Vulnerability } from "../src/types/domain.types";
 
 export const F = (id: string, is_entrypoint = false, name = id): Func => ({
   id,

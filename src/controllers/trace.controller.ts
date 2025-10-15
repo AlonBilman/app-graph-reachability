@@ -2,17 +2,17 @@ import type { RequestHandler } from "express";
 import { requireStore } from "./graph.controller";
 import { allEntryToTargetPaths } from "../services/reachability";
 import { calculateTotalScore, getScoreBreakdown } from "../services/scoring";
-import type { TraceResponse } from "../types";
+import type { TraceResponseDTO } from "../types/dto.types";
 import { NotFoundError } from "../errors/api-error";
-import type { TraceQueryDTO } from "../schemas/trace.schema";
+import { ResponseHelper } from "../utils/response.helper";
 
 function buildTraceResponse(
   functionId: string,
   paths: string[][],
   allPaths: boolean,
   limit: number,
-): TraceResponse {
-  const response: TraceResponse = {
+): TraceResponseDTO {
+  const response: TraceResponseDTO = {
     function_id: functionId,
     reachable: paths.length > 0,
   };
@@ -41,7 +41,12 @@ export const getFunctionTrace: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
     const functionId = req.params.id;
-    const { all_paths = false, limit = 10 } = req.query as TraceQueryDTO;
+
+    // After validateQuery(TraceQuerySchema), these are already typed correctly
+    const { all_paths = false, limit = 10 } = req.query as {
+      all_paths?: boolean;
+      limit?: number;
+    };
 
     if (!store.hasFunction(functionId)) {
       throw new NotFoundError("Function", functionId);
@@ -50,7 +55,7 @@ export const getFunctionTrace: RequestHandler = (req, res, next) => {
     const paths = allEntryToTargetPaths(store, functionId);
     const response = buildTraceResponse(functionId, paths, all_paths, limit);
 
-    res.json(response);
+    ResponseHelper.success(res, response);
   } catch (error) {
     next(error);
   }
@@ -60,37 +65,37 @@ export const getVulnerabilityTrace: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
     const vulnId = req.params.id;
-    const { all_paths = false, limit = 10 } = req.query as TraceQueryDTO;
 
-    const vulnerability = store.vulnerabilities.find((v) => v.id === vulnId);
-    if (!vulnerability) {
+    // After validateQuery(TraceQuerySchema), these are already typed correctly
+    const { all_paths = false, limit = 10 } = req.query as {
+      all_paths?: boolean;
+      limit?: number;
+    };
+
+    const vuln = store.vulnerabilities.find((v) => v.id === vulnId);
+    if (!vuln) {
       throw new NotFoundError("Vulnerability", vulnId);
     }
 
-    const paths = allEntryToTargetPaths(store, vulnerability.func_id);
+    const paths = allEntryToTargetPaths(store, vuln.func_id);
     const vulnWithReachability = {
-      ...vulnerability,
+      ...vuln,
       reachable: paths.length > 0,
     };
     const scoreBreakdown = getScoreBreakdown(vulnWithReachability);
     const score = calculateTotalScore(scoreBreakdown);
 
-    const response = buildTraceResponse(
-      vulnerability.func_id,
-      paths,
-      all_paths,
-      limit,
-    );
+    const response = buildTraceResponse(vuln.func_id, paths, all_paths, limit);
     //add vulnerability details to response
     response.vulnerability_id = vulnId;
-    response.severity = vulnerability.severity;
+    response.severity = vuln.severity;
     response.score = score;
 
     if (paths.length === 0) {
       response.error = "No path exists from entry points to this function";
     }
 
-    res.json(response);
+    ResponseHelper.success(res, response);
   } catch (error) {
     next(error);
   }

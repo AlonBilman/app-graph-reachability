@@ -5,16 +5,16 @@ import {
   findCriticalAttackPaths,
 } from "../services/analytics";
 import type {
-  AttackPathQueryDTO,
-  //ComponentQueryDTO,
-} from "../schemas/analytics.schema";
+  ComponentAnalysisResponseDTO,
+  AttackPathAnalysisResponseDTO,
+} from "../types/dto.types";
+import { ResponseHelper } from "../utils/response.helper";
 
 export const getComponentAnalysis: RequestHandler = (_req, res, next) => {
   try {
     const store = requireStore();
-    // unused ComponentQueryDTO but kept for future use
     const result = findConnectedComponents(store);
-    res.json(result);
+    ResponseHelper.success<ComponentAnalysisResponseDTO>(res, result);
   } catch (e) {
     next(e);
   }
@@ -23,15 +23,25 @@ export const getComponentAnalysis: RequestHandler = (_req, res, next) => {
 export const getAttackPaths: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
-    const { max_paths, min_severity, max_path_length } =
-      req.query as AttackPathQueryDTO;
+
+    // After validation middleware, these are already typed correctly
+    const {
+      max_paths = 10,
+      min_severity = "high",
+      max_path_length,
+    } = req.query as {
+      max_paths?: number;
+      min_severity?: "low" | "medium" | "high" | "critical";
+      max_path_length?: number;
+    };
+
     const result = findCriticalAttackPaths(
       store,
-      max_paths ?? 10,
-      min_severity ?? "high",
+      max_paths,
+      min_severity,
       max_path_length,
     );
-    res.json(result);
+    ResponseHelper.success<AttackPathAnalysisResponseDTO>(res, result);
   } catch (e) {
     next(e);
   }

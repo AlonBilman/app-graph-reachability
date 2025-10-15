@@ -5,9 +5,9 @@ import {
   getFunctionTrace,
   getVulnerabilityTrace,
 } from "../src/controllers/trace.controller";
-import { validate, validateQuery } from "../src/middleware/validate";
-import { GraphSchema } from "../src/schemas/graph.schema";
-import { VulnsSchema } from "../src/schemas/vulns.schema";
+import { validateBody, validateQuery } from "../src/middleware/validate";
+import { GraphLoadRequestDTOSchema } from "../src/schemas/graph.schema";
+import { VulnerabilityLoadRequestDTOSchema } from "../src/schemas/vulns.schema";
 import { TraceQuerySchema } from "../src/schemas/trace.schema";
 import { mockReq, mockRes, F } from "./helpers";
 
@@ -16,7 +16,7 @@ describe("controller validation & error paths", () => {
     const req = mockReq({ body });
     const res = mockRes();
     const next = vi.fn();
-    const mw = validate(schema as any);
+    const mw = validateBody(schema as any);
     mw(req, res, next);
     return { next, req, res };
   };
@@ -76,7 +76,7 @@ describe("controller validation & error paths", () => {
     expect(err.message).toMatch(/duplicate vulnerability id/i);
   });
 
-  describe("POST /graph -> validate(GraphSchema) -> 400", () => {
+  describe("POST /graph -> validate(GraphLoadRequestDTOSchema) -> 400", () => {
     test.each([
       {
         name: "duplicate function ids",
@@ -120,7 +120,7 @@ describe("controller validation & error paths", () => {
         expectMsg: "Duplicate edges not allowed",
       },
     ])("$name", ({ body, expectMsg }) => {
-      const { next } = runValidate(GraphSchema, body);
+      const { next } = runValidate(GraphLoadRequestDTOSchema, body);
       expect(next).toHaveBeenCalled();
       const err = next.mock.calls[0][0];
       expect(err).toBeInstanceOf(Error);
@@ -179,8 +179,8 @@ describe("controller validation & error paths", () => {
     expect(err.message).toContain("Vulnerability not found");
   });
 
-  test("validate(VulnsSchema) -> missing func_id field -> 400", () => {
-    const { next } = runValidate(VulnsSchema, [
+  test("validate(VulnerabilityLoadRequestDTOSchema) -> missing func_id field -> 400", () => {
+    const { next } = runValidate(VulnerabilityLoadRequestDTOSchema, [
       { id: "V-1", severity: "high" },
     ]);
     expect(next).toHaveBeenCalled();
@@ -203,8 +203,8 @@ describe("controller validation & error paths", () => {
     expect(req.query.limit).toBe(5);
   });
 
-  test("validate(VulnsSchema) -> valid data passes", () => {
-    const { next, req } = runValidate(VulnsSchema, [
+  test("validate(VulnerabilityLoadRequestDTOSchema) -> valid data passes", () => {
+    const { next, req } = runValidate(VulnerabilityLoadRequestDTOSchema, [
       {
         id: "V1",
         func_id: "F1",

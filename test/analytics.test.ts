@@ -4,7 +4,7 @@ import {
   findConnectedComponents,
   findCriticalAttackPaths,
 } from "../src/services/analytics";
-import type { Graph, Vulnerability } from "../src/types";
+import type { Graph, Vulnerability } from "../src/types/domain.types";
 import { F, V } from "./helpers";
 
 const makeStore = (graph: Graph) => new Store(graph);

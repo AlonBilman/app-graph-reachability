@@ -1,13 +1,18 @@
 import type { RequestHandler } from "express";
 import { requireStore } from "./graph.controller";
-import type { VulnDTO } from "../schemas/vulns.schema";
-import type { VulnerabilityLoadResponse } from "../types";
+import type { VulnerabilityLoadRequestDTO } from "../schemas/vulns.schema";
+import type {
+  VulnerabilityLoadResponseDTO,
+  VulnerabilitiesResponseDTO,
+} from "../types/dto.types";
+import { DTOMapper } from "../utils/dto.mapper";
 import { ValidationError, ConflictError } from "../errors/api-error";
+import { ResponseHelper } from "../utils/response.helper";
 
 export const postVulns: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
-    const vulnsData: VulnDTO[] = req.body;
+    const vulnsData: VulnerabilityLoadRequestDTO = req.body;
 
     // Validate func_id existence
     const invalid = vulnsData.filter((v) => !store.hasFunction(v.func_id));
@@ -29,23 +34,32 @@ export const postVulns: RequestHandler = (req, res, next) => {
     if (dup) {
       throw new ConflictError(`Duplicate vulnerability id: ${dup.id}`);
     }
-    const vulnerabilities = vulnsData.map((dto) => ({
-      id: dto.id,
-      func_id: dto.func_id,
-      severity: dto.severity,
-      cwe_id: dto.cwe_id,
-      package_name: dto.package_name,
-      introduced_by_ai: dto.introduced_by_ai,
-    }));
+
+    const vulnerabilities = DTOMapper.vulnerabilitiesFromDTO(vulnsData);
 
     store.replaceVulnerabilities(vulnerabilities);
 
-    const response: VulnerabilityLoadResponse = {
+    const response: VulnerabilityLoadResponseDTO = {
       ok: true,
       vulnerabilities_loaded: vulnerabilities.length,
     };
 
-    res.json(response);
+    ResponseHelper.created(res, response);
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const getVulns: RequestHandler = (_req, res, next) => {
+  try {
+    const store = requireStore();
+    const vulnerabilities = store.getAllVulnerabilities();
+
+    const response: VulnerabilitiesResponseDTO = {
+      vulnerabilities: DTOMapper.vulnerabilitiesToDTO(vulnerabilities),
+    };
+
+    ResponseHelper.success(res, response);
   } catch (e) {
     next(e);
   }

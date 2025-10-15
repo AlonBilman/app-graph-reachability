@@ -6,15 +6,26 @@ import {
   getScoreBreakdown,
   hierarchyLevels,
 } from "../services/scoring";
-import type { RisksListResponse, RiskResponse } from "../types";
-import type { RisksQueryDTO } from "../schemas/risks.schema";
+import type { RisksListResponseDTO, RiskResponseDTO } from "../types/dto.types";
+import { DTOMapper } from "../utils/dto.mapper";
+import { ResponseHelper } from "../utils/response.helper";
 
 export const getRisks: RequestHandler = (req, res, next) => {
   try {
     const store = requireStore();
-    const { min_severity, limit, reachable_only } = req.query as RisksQueryDTO;
 
-    const risks: RiskResponse[] = store.vulnerabilities
+    // After validateQuery(RisksQuerySchema), these are already typed correctly
+    const {
+      min_severity,
+      limit = 50,
+      reachable_only = true,
+    } = req.query as {
+      min_severity?: "low" | "medium" | "high" | "critical";
+      limit?: number;
+      reachable_only?: boolean;
+    };
+
+    const risks: RiskResponseDTO[] = store.vulnerabilities
       .filter((vuln) => {
         const exists = store.hasFunction(vuln.func_id);
         if (!exists) {
@@ -41,7 +52,7 @@ export const getRisks: RequestHandler = (req, res, next) => {
           cwe: vuln.cwe_id,
           reachable,
           score,
-          score_breakdown: scoreBreakdown,
+          score_breakdown: DTOMapper.scoreBreakdownToDTO(scoreBreakdown),
           metadata: {
             package_name: vuln.package_name,
             introduced_by_ai: vuln.introduced_by_ai,
@@ -57,8 +68,8 @@ export const getRisks: RequestHandler = (req, res, next) => {
       .sort((a, b) => b.score - a.score)
       .slice(0, limit);
 
-    const response: RisksListResponse = { risks };
-    res.json(response);
+    const response: RisksListResponseDTO = { risks };
+    ResponseHelper.success(res, response);
   } catch (error) {
     next(error);
   }
