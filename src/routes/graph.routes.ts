@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { postGraph } from "../controllers/graph.controller";
-import { validate } from "../middleware/validate";
-import { GraphSchema } from "../schemas/graph.schema";
+import { postGraph, getGraph } from "../controllers/graph.controller";
+import { validateBody } from "../middleware/validate";
+import { GraphLoadRequestDTOSchema } from "../schemas/graph.schema";
 
 export const graphRouter = Router();
-graphRouter.post("/", validate(GraphSchema), postGraph);
+graphRouter.post("/", validateBody(GraphLoadRequestDTOSchema), postGraph);
+graphRouter.get("/", getGraph);

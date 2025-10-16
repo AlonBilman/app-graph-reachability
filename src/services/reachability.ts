@@ -1,37 +1,31 @@
 import { Store } from "../store";
-import { Func } from "../types";
-import { DangerousGroup } from "../types";
+import type { Func, DangerousGroup } from "../types/domain.types";
+import { bfsAllPaths } from "./graph-utils";
 
-// returns all paths from any entrypoint to the target function id with bfs
+/**
+ * Finds all paths from any entrypoint to the target function (DIRECTED).
+ * Uses BFS for each entrypoint.
+ * @param store - The in-memory graph store
+ * @param target - Target function ID
+ */
 export function allEntryToTargetPaths(
   store: Store,
   target: string,
 ): string[][] {
   const results: string[][] = [];
-
   for (const entry of store.entrypointIds) {
-    const queue: string[][] = [[entry]];
-
-    while (queue.length > 0) {
-      const path = queue.shift()!;
-      const last = path[path.length - 1];
-
-      if (last === target) {
-        results.push(path);
-        continue;
-      }
-
-      for (const neighbor of store.getNeighbors(last)) {
-        if (!path.includes(neighbor)) {
-          queue.push([...path, neighbor]);
-        }
-      }
-    }
+    const paths = bfsAllPaths(store, entry, target);
+    results.push(...paths);
   }
-
   return results;
 }
 
+/**
+ * For each vulnerability, finds all exploit paths from entrypoints to the vulnerable function.
+ * Groups results by vulnerability.
+ * @param store - The in-memory graph store
+ * @param opts - Optional: maxPathsPerFunc to limit number of paths per vulnerability
+ */
 export function findDangerousPathsFromEntrypoints(
   store: Store,
   opts?: { maxPathsPerFunc?: number },
@@ -53,7 +47,7 @@ export function findDangerousPathsFromEntrypoints(
   const groups: DangerousGroup[] = [];
 
   for (const vuln of store.vulnerabilities) {
-    const idPaths = getIdPaths(vuln.funcId);
+    const idPaths = getIdPaths(vuln.func_id);
     if (idPaths.length === 0) continue; //skip unreachable
 
     const funcPaths: Func[][] = idPaths.map((ids) =>

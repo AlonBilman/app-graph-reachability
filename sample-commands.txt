@@ -1,4 +1,3 @@
-
 npm run dev
 
 curl -X POST http://localhost:3000/graph -d @sample-graph.json -H "Content-Type: application/json"

@@ -1,19 +1,37 @@
 import type { z } from "zod";
-import type { RequestHandler } from "express";
+import type { RequestHandler, Request } from "express";
+import { ValidationError } from "../errors/api-error";
 
-//validate before reaching the controller
-export const validate =
-  (schema: z.ZodType): RequestHandler =>
-  (req, _res, next) => {
-    const parsed = schema.safeParse(req.body);
-    if (!parsed.success) {
-      const msg = parsed.error.issues
-        .map((i) => `${i.path.join(".")}: ${i.message}`)
-        .join("; ");
-      return next(
-        Object.assign(new Error(`Validation error: ${msg}`), { status: 400 }),
-      );
-    }
-    req.body = parsed.data;
-    next();
-  };
+function createValidator<
+  T extends keyof Pick<Request, "body" | "query" | "params">,
+>(key: T, defaultMessage: string) {
+  return (schema: z.ZodType): RequestHandler =>
+    (req, _res, next) => {
+      const parsed = schema.safeParse(req[key]);
+      if (!parsed.success) {
+        const issue = parsed.error.issues[0];
+        const path = issue?.path?.join(".") ?? "";
+        const msg = issue
+          ? path
+            ? `${path}: ${issue.message}`
+            : issue.message
+          : defaultMessage;
+        return next(new ValidationError(msg, parsed.error.issues));
+      }
+      (req as any)[key] = parsed.data;
+      next();
+    };
+}
+
+export const validateBody = createValidator(
+  "body",
+  "Request body validation failed",
+);
+export const validateQuery = createValidator(
+  "query",
+  "Query parameter validation failed",
+);
+export const validateParams = createValidator(
+  "params",
+  "Route parameter validation failed",
+);
