@@ -16,7 +16,6 @@ import type {
  *
  */
 export class DTOMapper {
-
   static functionToDTO(func: Func): FunctionDTO {
     return {
       id: func.id,
